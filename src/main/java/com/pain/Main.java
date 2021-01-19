@@ -30,7 +30,7 @@ public class Main {
         else{
             try{
                 Connection con = conectionsDatabases.newDbConection("t");
-                Pessoa p = new Pessoa("Edna", 23);
+                Pessoa p = new Pessoa("Nene", 23);
                 Crud c = new Crud();
                 c.inserted(p, Pessoa.class,"r",conectionsDatabases);
             }
