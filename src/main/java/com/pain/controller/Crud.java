@@ -62,37 +62,20 @@ public class Crud implements com.pain.repository.Crud {
 
         try{
             con = conectionsDatabases.newDbConection(db);
-            sql = constructorQuery(1,cp, classe.getSimpleName());
-            stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-            int i = 1;
-            for (Field campo: campos) {
-                try{
-                    campo.setAccessible(true);
-                    if(!verificaAnotacao(campo.getDeclaredAnnotations(),"Id")) {
-                        stmt.setObject(i, campo.get(obj));
-                        i++;
+            // Insere Sempre na Tabela Principal Primeiro
+            int id = montaStatement(campos,classe,obj,con,cp);
+
+            int anotacao = 0;
+            while(anotacao == 0){
+                if(objectLocal.size() > 0){
+                    for (Class<?> cl: objectLocal){
+                        Field[] cpobjLocal = cl.getDeclaredFields();
+
                     }
                 }
-                catch (IllegalAccessException e){
-                    System.out.println(e);
-                }
-
+                anotacao = 1;
             }
-            stmt.execute();
-            rs = stmt.getGeneratedKeys();
-            int id = 0;
-            while (rs.next()){
-                id = rs.getInt(1);
-            }
-
-            if(objectLocal.size() > 0){
-                for (Class<?> cl: objectLocal){
-                    Field[] cpobjLocal = cl.getDeclaredFields();
-                }
-            }
-
-
         }
         catch (SQLException e){
             System.out.println(e.getMessage());
@@ -103,22 +86,18 @@ public class Crud implements com.pain.repository.Crud {
         return null;
     }
 
-    public Object deleted(Object obj, Class clazz, String db) {
+    @Override
+    public Object inserted(Object obj, Class clazz, Connection con) throws SQLException {
         return null;
     }
 
-    public List<Object> getAll(Object obj, Class clazz, String db) {
-        return null;
-    }
-
-    public Object getById(long id, Class clazz, String db) {
-        return null;
-    }
-
-    public Object searchByParameters(Object obj, Class clazz, String db) {
-        return null;
-    }
-
+    /**
+     *
+     * @param tipo  Tipo 1 - Insert, 2 - Update, 3 Delete e 4- Select
+     * @param colunas Colunas dos Campos do banco de dados que seão inseridos
+     * @param className Nome da classe pois é o mesmo do banco de dados
+     * @return Retorna uma String com a Query
+     */
     public String constructorQuery(int tipo,List<String> colunas, String className){
 
         String sql = "";
@@ -139,6 +118,12 @@ public class Crud implements com.pain.repository.Crud {
         return sql;
     }
 
+    /**
+     * Método Responsável por verificar as Anotações
+     * @param an Aqui entra um Array, pois cada compo pode ter mais de uma anotação por campo
+     * @param tipoAn Tipo da Anotação [ID, FK, ListObjects, Objects]
+     * @return
+     */
     public boolean verificaAnotacao(Annotation[] an,String tipoAn){
         boolean ret = false;
 
@@ -149,5 +134,121 @@ public class Crud implements com.pain.repository.Crud {
             }
         }
         return ret;
+    }
+
+    /**
+     * Método Responsável por retirar todas as anotações do campos
+     * @param campos Campos ddo Objeto Mapeado
+     * @return campos da classe sem anotação pra gravar no banco
+     */
+    public List<Field> retiraAnotacao(Field[] campos,int tipo){
+        List<Field> ret = new ArrayList<>();
+
+        if(tipo == 1){
+            for(Field c : campos){
+                Annotation[] a = c.getDeclaredAnnotations();
+                if(a.length == 0){
+                    ret.add(c);
+                }
+            }
+        }
+        else {
+            for(Field c : campos){
+                Annotation[] a = c.getDeclaredAnnotations();
+                if(a.length > 0){
+                    for (Annotation b: a) {
+                        Class<?> d = b.annotationType();
+                        if(d.getSimpleName().equals("Fk")){
+                            ret.add(c);
+                        }
+                    }
+                }
+                else{
+                    ret.add(c);
+                }
+            }
+        }
+
+        return ret;
+    }
+
+
+    public int montaStatement(Field[] campos, Class<?> classe, Object obj, Connection con, List<String> cp) throws SQLException{
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+
+        sql = constructorQuery(1,cp, classe.getSimpleName());
+        stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+
+        int i = 1;
+        List<Field> notAnotation = retiraAnotacao(campos,1);
+
+        for (Field campo: notAnotation) {
+            try{
+                campo.setAccessible(true);
+                stmt.setObject(i, campo.get(obj));
+                i++;
+            }
+            catch (IllegalAccessException | SQLException e){
+                System.out.println(e);
+            }
+        }
+
+        stmt.execute();
+        rs = stmt.getGeneratedKeys();
+        int id = 0;
+        while (rs.next()){
+            id = rs.getInt(1);
+        }
+
+        return id;
+    }
+
+    public void insereObjectSimple(Field[] campos, Class<?> classe, Object obj, Connection con, List<String> cp, int id) throws SQLException{
+
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+
+        sql = constructorQuery(1,cp, classe.getSimpleName());
+        stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+
+        int i = 1;
+        List<Field> notAnotation = retiraAnotacao(campos,1);
+
+        for (Field campo: notAnotation) {
+            try{
+                campo.setAccessible(true);
+                Annotation[] a = campo.getDeclaredAnnotations();
+                if(a.length > 0){
+                    for (Annotation b : a){
+                        Class<?> anotacao = b.annotationType();
+                        if(anotacao.getSimpleName().equals("Fk")){
+                            stmt.setObject(i, campo.get(id));
+                        }
+                    }
+                }
+                else {
+                    stmt.setObject(i, campo.get(obj));
+                }
+                i++;
+            }
+            catch (IllegalAccessException | SQLException e){
+                System.out.println(e);
+            }
+        }
+
+        stmt.execute();
+        rs = stmt.getGeneratedKeys();
+        int idi = 0;
+        while (rs.next()){
+            idi = rs.getInt(1);
+        }
+
     }
 }

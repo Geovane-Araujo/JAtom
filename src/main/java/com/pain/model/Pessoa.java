@@ -1,6 +1,7 @@
 package com.pain.model;
 
 import com.pain.anotacoes.Id;
+import com.pain.anotacoes.ObjectLocal;
 
 public class Pessoa {
 
@@ -8,6 +9,8 @@ public class Pessoa {
     private int id;
     private String nome;
     private int idade;
+    @ObjectLocal
+    private Telefones tel;
 
     public Pessoa() {
     }
@@ -39,5 +42,13 @@ public class Pessoa {
 
     public void setIdade(int idade) {
         this.idade = idade;
+    }
+
+    public Telefones getTel() {
+        return tel;
+    }
+
+    public void setTel(Telefones tel) {
+        this.tel = tel;
     }
 }
