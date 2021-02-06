@@ -1,0 +1,16 @@
+com\pain_crud\interfaces\Crud.class
+com\pain_crud\anotacoes\OneToOne.class
+com\pain_crud\anotacoes\Fk.class
+com\pain_crud\model\Enderecos.class
+com\pain_crud\anotacoes\Sql.class
+com\pain_crud\anotacoes\Ignore.class
+com\pain_crud\Metodos\MappingClass.class
+com\pain_crud\Main.class
+com\pain_crud\conections\ConectionsDatabases.class
+com\pain_crud\model\ConfigConection.class
+com\pain_crud\Metodos\Crud.class
+com\pain_crud\model\Pessoa.class
+com\pain_crud\anotacoes\ListObjectLocal.class
+com\pain_crud\anotacoes\Id.class
+com\pain_crud\anotacoes\ObjectLocal.class
+com\pain_crud\model\Telefones.class

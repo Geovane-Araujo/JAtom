@@ -63,7 +63,7 @@
 
 
     </dependencies>
-
-
+    <name>pain-crud</name>
+    <description>A demo for deployment to the Central Repository via OSSRH</description>
 
 </project>
