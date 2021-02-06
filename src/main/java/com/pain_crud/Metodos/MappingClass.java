@@ -1,4 +1,4 @@
-package com.pain.controller;
+package com.pain_crud.Metodos;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;

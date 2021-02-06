@@ -1,6 +1,6 @@
-package com.pain.conections;
+package com.pain_crud.conections;
 
-import com.pain.model.ConfigConection;
+import com.pain_crud.model.ConfigConection;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

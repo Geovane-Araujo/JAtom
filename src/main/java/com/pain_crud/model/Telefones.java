@@ -1,7 +1,7 @@
-package com.pain.model;
+package com.pain_crud.model;
 
-import com.pain.anotacoes.Fk;
-import com.pain.anotacoes.Id;
+import com.pain_crud.anotacoes.Fk;
+import com.pain_crud.anotacoes.Id;
 
 public class Telefones {
 
