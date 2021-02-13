@@ -5,7 +5,7 @@ import com.pain_crud.conections.ConectionsDatabases;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public interface Crud {
+public interface MethodsCrud {
 
     // inserts
 
@@ -77,4 +77,7 @@ public interface Crud {
      * @throws SQLException
      */
     public Object deleted(Connection con,int idobject, String className) throws SQLException;
+
+
+    public Object getAll(Connection con,String sql) throws SQLException;
 }

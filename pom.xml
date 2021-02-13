@@ -19,6 +19,9 @@
             </plugin>
         </plugins>
     </build>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
