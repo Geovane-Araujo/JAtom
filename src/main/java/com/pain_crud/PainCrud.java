@@ -251,8 +251,10 @@ public class PainCrud implements MethodsCrud {
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
-
-        sql = constructorQuery(tipo, cp, classe.getSimpleName(), idobject);
+        Annotation[] an = classe.getAnnotations();
+        Class<?> ano = an[0].annotationType();
+        String alias = classe.getAnnotation(Alias.class).value();
+        sql = constructorQuery(tipo, cp, alias, idobject);
         stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
         int i = 1;

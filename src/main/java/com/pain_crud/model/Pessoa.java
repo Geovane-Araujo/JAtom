@@ -1,12 +1,9 @@
 package com.pain_crud.model;
 
-import com.pain_crud.Id;
-import com.pain_crud.Ignore;
-import com.pain_crud.ListObjectLocal;
-import com.pain_crud.ObjectLocal;
+import com.pain_crud.*;
 
 import java.util.List;
-
+@Alias(value="pessoa_pessoa")
 public class Pessoa {
 
     @Ignore
