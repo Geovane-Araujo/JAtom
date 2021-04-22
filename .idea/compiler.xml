@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="pain" />
         <module name="pain-crud" />
+        <module name="Pain" />
       </profile>
     </annotationProcessing>
   </component>

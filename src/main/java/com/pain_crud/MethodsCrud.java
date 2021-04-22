@@ -1,6 +1,4 @@
-package com.pain_crud.interfaces;
-
-import com.pain_crud.conections.ConectionsDatabases;
+package com.pain_crud;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -19,7 +17,7 @@ public interface MethodsCrud {
      * @return Retorna o Obeeto
      * @throws SQLException
      */
-    public Object insertedAll(Object obj, Class clazz,String db, ConectionsDatabases connectionsDatabases) throws SQLException;
+    //public Object insertedAll(Object obj, Class clazz,String db, ConectionsDatabases connectionsDatabases) throws SQLException;
 
     /**
      * Método responsável por fazer o insert no banco de dados, este método mapeia a classe pegando todas as classes filhas
@@ -31,7 +29,7 @@ public interface MethodsCrud {
      * @throws SQLException
      */
 
-    public Object insertedAll(Object obj, Class clazz, Connection con) throws SQLException;
+    //public Object insertedAll(Object obj, Class clazz, Connection con) throws SQLException;
     /**
      *  Método responsável por fazer o insert, só que diferente do All ele ignora as anotações ListObjects e Object
      *
@@ -43,7 +41,7 @@ public interface MethodsCrud {
      * @throws SQLException
      */
 
-    public Object insertedOne(Object obj, Class clazz,String db, ConectionsDatabases connectionsDatabases) throws SQLException;
+    public int insertedOne(Object obj, Class clazz, Connection con) throws SQLException, IllegalAccessException;
     /**
      *  Método responsável por fazer o insert, só que diferente do All ele ignora as anotações ListObjects e Object
      *
@@ -52,9 +50,6 @@ public interface MethodsCrud {
      * @return
      * @throws SQLException
      */
-
-    public Object insertedOne(Object obj, Class clazz, Connection con) throws SQLException;
-
     //Editing
     /**
      *  Método responsável por fazer o Editing, só que diferente do All ele ignora as anotações ListObjects e Object
@@ -65,7 +60,7 @@ public interface MethodsCrud {
      * @return
      * @throws SQLException
      */
-    public Object editingOne(Object obj, Class clazz, Connection con,int idobject) throws SQLException;
+    public int editingOne(Object obj, Class clazz, Connection con,int idobject) throws SQLException, IllegalAccessException;
 
     /**
      * Método Responsável por fazer a exclusão de um objeto
@@ -79,5 +74,7 @@ public interface MethodsCrud {
     public Object deleted(Connection con,int idobject, String className) throws SQLException;
 
 
-    public Object getAll(Connection con,String sql) throws SQLException;
+    public Object getAll(Class clazz,Connection con,String sql) throws SQLException;
+
+    public Object getOne(Class cazz,Connection con,String sql) throws SQLException;
 }

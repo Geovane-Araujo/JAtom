@@ -1,9 +1,9 @@
 package com.pain_crud.model;
 
-import com.pain_crud.anotacoes.Id;
-import com.pain_crud.anotacoes.Ignore;
-import com.pain_crud.anotacoes.ListObjectLocal;
-import com.pain_crud.anotacoes.ObjectLocal;
+import com.pain_crud.Id;
+import com.pain_crud.Ignore;
+import com.pain_crud.ListObjectLocal;
+import com.pain_crud.ObjectLocal;
 
 import java.util.List;
 

@@ -1,17 +1,13 @@
-package com.pain_crud.Metodos;
+package com.pain_crud;
 
-import com.pain_crud.conections.ConectionsDatabases;
-import com.pain_crud.interfaces.MethodsCrud;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.google.gson.Gson;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.sql.*;
 import java.util.*;
 
-@RestController
-public class Crud implements MethodsCrud {
+public class PainCrud implements MethodsCrud {
 
     String sql = "";
     PreparedStatement stmt = null;
@@ -19,56 +15,10 @@ public class Crud implements MethodsCrud {
 
     Hashtable retorno = new Hashtable();
 
-    @Override
-    public Object insertedAll(Object obj, Class clazz, String db, ConectionsDatabases conectionsDatabases)
-            throws SQLException {
-
-        Connection con = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        Class<?> classe = obj.getClass();
-        Field[] campos = classe.getDeclaredFields();
-
-        List<String> cp = new ArrayList<String>();
-
-        List<String> camposAnotacoes = new ArrayList<String>();
-
-        List<String> ids = new ArrayList<String>();
-        List<Class<?>> listObjects = new ArrayList<Class<?>>();
-        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
-        List<Class<?>> pilha = new ArrayList<>();
-
-        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
-
-        try {
-            con = conectionsDatabases.newDbConection(db);
-
-            // Insere Sempre na Tabela Principal Primeiro
-            int id = montaStatement(campos, classe, obj, con, cp, 1, 0);
-
-            int anotacao = 0;
-            if (objectLocal.size() > 0) {
-                for (Class<?> cl : objectLocal) {
-                    Field[] cpobjLocal = cl.getDeclaredFields();
-                    // montaStatement(cpobjLocal,cl.getClass(),obj,con);
-                    System.out.println(cpobjLocal.getClass());
-                }
-            }
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            con.close();
-        }
-        return null;
-    }
 
     @Override
-    public Object insertedOne(Object obj, Class clazz, String db, ConectionsDatabases connectionsDatabases)
-            throws SQLException {
+    public int insertedOne(Object obj, Class clazz, Connection con) throws SQLException, IllegalAccessException {
 
-        Connection con = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
@@ -84,58 +34,16 @@ public class Crud implements MethodsCrud {
         List<String> ids = new ArrayList<String>();
         List<Class<?>> listObjects = new ArrayList<Class<?>>();
         List<Class<?>> objectLocal = new ArrayList<Class<?>>();
-        List<Class<?>> pilha = new ArrayList<>();
 
         separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
-
-        try {
-            con = connectionsDatabases.newDbConection(db);
-
-            // Insere Sempre na Tabela Principal Primeiro
-            int id = montaStatement(campos, classe, obj, con, cp, 1, 0);
-            retorno.put("ret", "success");
-            retorno.put("msg", "ok");
-            retorno.put("obj", obj);
-            retorno.put("id", id);
-        } catch (SQLException e) {
-            retorno.put("ret", "unsuccess");
-            retorno.put("msg", e.getMessage());
-            retorno.put("obj", obj);
-        } finally {
-            con.close();
-        }
-        return retorno;
-    }
-
-    @Override
-    public Object insertedOne(Object obj, Class clazz, Connection con) throws SQLException {
-
-        Class<?> classe = obj.getClass();
-        Field[] campos = classe.getDeclaredFields();
-
-        List<String> cp = new ArrayList<String>();
-
-        List<String> camposAnotacoes = new ArrayList<String>();
-
-        List<String> ids = new ArrayList<String>();
-        List<Class<?>> listObjects = new ArrayList<Class<?>>();
-        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
-        List<Class<?>> pilha = new ArrayList<>();
-
-        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
-
         // Insere Sempre na Tabela Principal Primeiro
         int id = montaStatement(campos, classe, obj, con, cp, 1, 0);
-        retorno.put("ret", "success");
-        retorno.put("msg", "ok");
-        retorno.put("obj", obj);
-        retorno.put("id", id);
 
-        return retorno;
+        return id;
     }
 
     @Override
-    public Object editingOne(Object obj, Class clazz, Connection con, int idobject) throws SQLException {
+    public int editingOne(Object obj, Class clazz, Connection con, int idobject) throws SQLException, IllegalAccessException {
 
         Class<?> classe = obj.getClass();
         Field[] campos = classe.getDeclaredFields();
@@ -153,12 +61,8 @@ public class Crud implements MethodsCrud {
 
         // Insere Sempre na Tabela Principal Primeiro
         montaStatement(campos, classe, obj, con, cp, 2, idobject);
-        retorno.put("ret", "success");
-        retorno.put("msg", "ok");
-        retorno.put("obj", obj);
-        retorno.put("id", idobject);
 
-        return retorno;
+        return idobject;
     }
 
     @Override
@@ -179,11 +83,12 @@ public class Crud implements MethodsCrud {
     }
 
     @Override
-    public Object getAll(Connection con, String sql) throws SQLException {
+    public Object getAll(Class clazz,Connection con, String sql) throws SQLException {
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
         List<String> cabecalho = new ArrayList<>();
+        Gson gson = new Gson();
 
         stmt = con.prepareStatement(sql);
         rs = stmt.executeQuery();
@@ -202,48 +107,44 @@ public class Crud implements MethodsCrud {
             for (String cabe: cabecalho) {
                 objR.put(cabe,rs.getObject(cabe));
             }
-            obj.add(objR);
+            String json = gson.toJson(objR);
+            obj.add(gson.fromJson(json,clazz));
         }
         return obj;
     }
 
     @Override
-    public Object insertedAll(Object obj, Class clazz, Connection con) throws SQLException {
+    public Object getOne(Class cazz,Connection con, String sql) throws SQLException {
 
-        Class<?> classe = obj.getClass();
-        Field[] campos = classe.getDeclaredFields();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        List<String> cabecalho = new ArrayList<>();
 
-        List<String> cp = new ArrayList<String>();
 
-        List<String> camposAnotacoes = new ArrayList<String>();
+        stmt = con.prepareStatement(sql);
+        rs = stmt.executeQuery();
 
-        List<String> ids = new ArrayList<String>();
-        List<Class<?>> listObjects = new ArrayList<Class<?>>();
-        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
-        List<Class<?>> pilha = new ArrayList<>();
-
-        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
-
-        try {
-            // Insere Sempre na Tabela Principal Primeiro
-            int id = montaStatement(campos, classe, obj, con, cp, 1, 0);
-
-            int anotacao = 0;
-            if (objectLocal.size() > 0) {
-                for (Class<?> cl : objectLocal) {
-                    Field[] cpobjLocal = cl.getDeclaredFields();
-                    // montaStatement(cpobjLocal,cl.getClass(),obj,con);
-                    System.out.println(cpobjLocal.getClass());
-                }
-            }
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            con.close();
+        ResultSetMetaData rsm = rs.getMetaData();
+        String col = "";
+        for(int i = 1;i <= rsm.getColumnCount();i++){
+            col = rsm.getColumnName(i);
+            cabecalho.add(col);
         }
-        return null;
+
+        Hashtable objR = new Hashtable();
+        while (rs.next()){
+            for (String cabe: cabecalho) {
+                if(rs.getObject(cabe)!= null)
+                    objR.put(cabe,rs.getObject(cabe));
+            }
+        }
+        Gson gson = new Gson();
+        String json = gson.toJson(objR);
+        Object ret = gson.fromJson(json,cazz);
+        return ret;
     }
+
+//
 
     /**
      *
@@ -346,7 +247,7 @@ public class Crud implements MethodsCrud {
     }
 
     public int montaStatement(Field[] campos, Class<?> classe, Object obj, Connection con, List<String> cp, int tipo,
-            int idobject) throws SQLException {
+            int idobject) throws SQLException, IllegalAccessException {
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -358,13 +259,9 @@ public class Crud implements MethodsCrud {
         List<Field> notAnotation = retiraAnotacao(campos, 1);
 
         for (Field campo : notAnotation) {
-            try {
-                campo.setAccessible(true);
-                stmt.setObject(i, campo.get(obj));
-                i++;
-            } catch (IllegalAccessException | SQLException e) {
-                System.out.println(e);
-            }
+            campo.setAccessible(true);
+            stmt.setObject(i, campo.get(obj));
+            i++;
         }
 
         stmt.execute();

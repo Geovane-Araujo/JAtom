@@ -1,39 +1,41 @@
 package com.pain_crud;
 
-import com.pain_crud.Metodos.Crud;
-import com.pain_crud.conections.ConectionsDatabases;
 import com.pain_crud.model.Pessoa;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Hashtable;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args){
-//        System.out.println("Tese");
-//
-//        ConectionsDatabases conectionsDatabases = new ConectionsDatabases(
-//            "localhost","5432","postgres","1816","r", 1);
-//        if(!conectionsDatabases.openConnections()){
-//            System.out.println("Falha na conexão");
-//        }
-//        else{
-//            try{
-//                Connection con = conectionsDatabases.newDbConection("r");
-//                Pessoa p = new Pessoa("Geovane", 23);
-//                Crud c = new Crud();
-//
-//                Hashtable obj = (Hashtable) c.insertedOne(p, Pessoa.class,con);
-//                p.setNome("Ednak");
-//                Object edit = c.editingOne(p,Pessoa.class,con,(int) obj.get("id"));
-//                c.deleted(con,(int) obj.get("id"),"Pessoa");
-//                Object a = c.getAll(con,"SELECT id, nome, idade FROM pessoa");
-//                System.out.println(obj);
-//            }
-//            catch (SQLException e){
-//                System.out.println(e.getMessage());
-//            }
-//        }
+        System.out.println("Tese");
+
+        ConectionsDatabases conectionsDatabases = new ConectionsDatabases(
+            "localhost","5432","postgres","1816","aas", 1);
+        if(!conectionsDatabases.openConnections()){
+            System.out.println("Falha na conexão");
+        }
+        else{
+            try{
+                Connection con = conectionsDatabases.newDbConection("aas");
+                Pessoa p = new Pessoa("Geovane", 23);
+                PainCrud c = new PainCrud();
+
+                int obj =  c.insertedOne(p, Pessoa.class,con);
+                p.setNome("Ednak");
+                Object edit = c.editingOne(p,Pessoa.class,con, obj);
+                // c.deleted(con,obj,"Pessoa");
+                List<Pessoa> a = (List<Pessoa>) c.getAll(Pessoa.class,con,"SELECT id, nome, idade FROM pessoa");
+                Object b = (Pessoa) c.getOne(Pessoa.class,con,"SELECT * FROM pessoa where id = 1");
+                System.out.println(obj);
+            }
+            catch (SQLException e){
+                System.out.println(e.getMessage());
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.pain_crud.model;
+package com.pain_crud;
 
 /**
  *

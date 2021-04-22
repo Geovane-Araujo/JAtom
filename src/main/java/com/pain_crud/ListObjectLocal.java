@@ -1,4 +1,4 @@
-package com.pain_crud.anotacoes;
+package com.pain_crud;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
