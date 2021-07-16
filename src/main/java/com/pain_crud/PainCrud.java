@@ -19,10 +19,27 @@ public class PainCrud implements MethodsCrud {
     @Override
     public int insertedOne(Object obj, Class clazz, Connection con) throws SQLException, IllegalAccessException {
 
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
+        Class<?> classe = obj.getClass();
+        Field[] campos = classe.getDeclaredFields();
 
-        Hashtable retorno = new Hashtable();
+        List<String> cp = new ArrayList<String>();
+
+        List<String> camposAnotacoes = new ArrayList<String>();
+
+        List<String> ids = new ArrayList<String>();
+        List<Class<?>> listObjects = new ArrayList<Class<?>>();
+        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
+
+        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
+
+        // Insere Sempre na Tabela Principal Primeiro
+        int id = montaStatement(campos, classe, obj, con, cp, 1, 0);
+
+        return id;
+    }
+
+    @Override
+    public void listInsertedOne(Object[] obj, Class clazz, Connection con) throws SQLException, IllegalAccessException {
 
         Class<?> classe = obj.getClass();
         Field[] campos = classe.getDeclaredFields();
@@ -37,9 +54,9 @@ public class PainCrud implements MethodsCrud {
 
         separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
         // Insere Sempre na Tabela Principal Primeiro
-        int id = montaStatement(campos, classe, obj, con, cp, 1, 0);
-
-        return id;
+        for(Object ob : obj){
+            montaStatement(campos, classe, ob, con, cp, 1, 0);
+        }
     }
 
     @Override

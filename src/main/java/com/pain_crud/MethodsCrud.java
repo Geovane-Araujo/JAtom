@@ -40,8 +40,19 @@ public interface MethodsCrud {
      * @return
      * @throws SQLException
      */
-
     public int insertedOne(Object obj, Class clazz, Connection con) throws SQLException, IllegalAccessException;
+
+    /**
+     *  Método responsável por fazer o insert de uma lista de objectos, só que diferente do All ele ignora as anotações ListObjects e Object
+     *
+     * @param obj objeto a ser inserido
+     * @param clazz Classe Principal do Objeto
+     * @param db String com o nome do Banco de Dados
+     * @param connectionsDatabases Objeto com os Atributos de Conexão
+     * Não há retorno
+     * @throws SQLException
+     */
+    public void listInsertedOne(Object[] obj, Class clazz, Connection con) throws SQLException, IllegalAccessException;
     /**
      *  Método responsável por fazer o insert, só que diferente do All ele ignora as anotações ListObjects e Object
      *
