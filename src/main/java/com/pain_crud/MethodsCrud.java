@@ -30,13 +30,13 @@ public interface MethodsCrud {
      */
 
     //public Object insertedAll(Object obj, Class clazz, Connection con) throws SQLException;
+
     /**
      *  Método responsável por fazer o insert, só que diferente do All ele ignora as anotações ListObjects e Object
      *
      * @param obj objeto a ser inserido
      * @param clazz Classe Principal do Objeto
-     * @param db String com o nome do Banco de Dados
-     * @param connectionsDatabases Objeto com os Atributos de Conexão
+     * @param con Objeto com os Atributos de Conexão
      * @return
      * @throws SQLException
      */
@@ -47,8 +47,7 @@ public interface MethodsCrud {
      *
      * @param obj objeto a ser inserido
      * @param clazz Classe Principal do Objeto
-     * @param db String com o nome do Banco de Dados
-     * @param connectionsDatabases Objeto com os Atributos de Conexão
+     * @param con Objeto com os Atributos de Conexão
      * Não há retorno
      * @throws SQLException
      */
@@ -88,4 +87,14 @@ public interface MethodsCrud {
     public Object getAll(Class clazz,Connection con,String sql) throws SQLException;
 
     public Object getOne(Class cazz,Connection con,String sql) throws SQLException;
+
+    /**
+     * Método Responsável por fazer a exclusão de um objeto
+     *
+     * @param con Conexão Aberta
+     * @param sql id do item a ser excluido
+     * @return
+     * @throws SQLException
+     */
+    public void executeQuery(Connection con,String sql) throws SQLException;
 }

@@ -161,7 +161,12 @@ public class PainCrud implements MethodsCrud {
         return ret;
     }
 
-//
+    @Override
+    public void executeQuery(Connection con, String sql) throws SQLException {
+        stmt = con.prepareStatement(sql);
+        stmt.execute();
+        stmt.close();
+    }
 
     /**
      *
