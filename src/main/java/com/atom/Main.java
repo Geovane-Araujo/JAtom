@@ -1,11 +1,4 @@
-package com.pain_crud;
-
-import com.pain_crud.model.Pessoa;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Hashtable;
-import java.util.List;
+package com.atom;
 
 public class Main {
 

@@ -1,4 +1,4 @@
-package com.pain_crud;
+package com.atom;
 
 /**
  *

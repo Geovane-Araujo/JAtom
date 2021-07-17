@@ -7,8 +7,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="pain" />
+        <module name="Atom" />
         <module name="pain-crud" />
-        <module name="Pain" />
       </profile>
     </annotationProcessing>
   </component>

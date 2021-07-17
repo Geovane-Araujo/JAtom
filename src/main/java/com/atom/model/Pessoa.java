@@ -1,6 +1,6 @@
-package com.pain_crud.model;
+package com.atom.model;
 
-import com.pain_crud.*;
+import com.atom.*;
 
 import java.util.List;
 @Alias(value="pessoa_pessoa")

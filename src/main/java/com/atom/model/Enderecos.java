@@ -1,6 +1,6 @@
-package com.pain_crud.model;
+package com.atom.model;
 
-import com.pain_crud.Fk;
+import com.atom.Fk;
 
 public class Enderecos {
 

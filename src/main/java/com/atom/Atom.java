@@ -1,4 +1,4 @@
-package com.pain_crud;
+package com.atom;
 
 import com.google.gson.Gson;
 import java.lang.annotation.Annotation;
@@ -7,7 +7,7 @@ import java.lang.reflect.ParameterizedType;
 import java.sql.*;
 import java.util.*;
 
-public class PainCrud implements MethodsCrud {
+public class Atom implements MethodsCrud {
 
     String sql = "";
     PreparedStatement stmt = null;
@@ -53,7 +53,6 @@ public class PainCrud implements MethodsCrud {
 
         separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
 
-        // Insere Sempre na Tabela Principal Primeiro
         int id = montaStatement(campos, classe, obj, con, cp, 1, 0);
 
         return id;
@@ -73,7 +72,7 @@ public class PainCrud implements MethodsCrud {
         List<Class<?>> objectLocal = new ArrayList<Class<?>>();
 
         separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
-        // Insere Sempre na Tabela Principal Primeiro
+
         for(Object ob : obj){
             montaStatement(campos, classe, ob, con, cp, 1, 0);
         }
@@ -95,7 +94,6 @@ public class PainCrud implements MethodsCrud {
 
         separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
 
-        // Insere Sempre na Tabela Principal Primeiro
         montaStatement(campos, classe, obj, con, cp, 2, idobject);
 
         return idobject;
@@ -117,7 +115,6 @@ public class PainCrud implements MethodsCrud {
 
         separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
 
-        // Insere Sempre na Tabela Principal Primeiro
         montaStatement(campos, classe, obj, con, cp, 2, idobject);
 
         return idobject;
@@ -138,7 +135,6 @@ public class PainCrud implements MethodsCrud {
 
         separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
 
-        // Insere Sempre na Tabela Principal Primeiro
         for(Object ob: obj){
             Field as = retid(campos);
             montaStatement(campos, classe, ob, con, cp, 2, Integer.parseInt(as.get(ob).toString()));
