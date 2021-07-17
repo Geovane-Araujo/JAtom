@@ -39,8 +39,28 @@ public class PainCrud implements MethodsCrud {
     }
 
     @Override
-    public void listInsertedOne(Object[] obj, Class clazz, Connection con) throws SQLException, IllegalAccessException {
+    public int insertedOne(Object obj, Connection con) throws SQLException, IllegalAccessException {
+        Class<?> classe = obj.getClass();
+        Field[] campos = classe.getDeclaredFields();
 
+        List<String> cp = new ArrayList<String>();
+
+        List<String> camposAnotacoes = new ArrayList<String>();
+
+        List<String> ids = new ArrayList<String>();
+        List<Class<?>> listObjects = new ArrayList<Class<?>>();
+        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
+
+        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
+
+        // Insere Sempre na Tabela Principal Primeiro
+        int id = montaStatement(campos, classe, obj, con, cp, 1, 0);
+
+        return id;
+    }
+
+    @Override
+    public void insertedOne(Object[] obj, Connection con) throws SQLException, IllegalAccessException {
         Class<?> classe = obj.getClass();
         Field[] campos = classe.getDeclaredFields();
 
@@ -72,7 +92,6 @@ public class PainCrud implements MethodsCrud {
         List<String> ids = new ArrayList<String>();
         List<Class<?>> listObjects = new ArrayList<Class<?>>();
         List<Class<?>> objectLocal = new ArrayList<Class<?>>();
-        List<Class<?>> pilha = new ArrayList<>();
 
         separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
 
@@ -80,6 +99,51 @@ public class PainCrud implements MethodsCrud {
         montaStatement(campos, classe, obj, con, cp, 2, idobject);
 
         return idobject;
+    }
+
+    @Override
+    public int editingOne(Object obj, Connection con, int idobject) throws SQLException, IllegalAccessException {
+
+        Class<?> classe = obj.getClass();
+        Field[] campos = classe.getDeclaredFields();
+
+        List<String> cp = new ArrayList<String>();
+
+        List<String> camposAnotacoes = new ArrayList<String>();
+
+        List<String> ids = new ArrayList<String>();
+        List<Class<?>> listObjects = new ArrayList<Class<?>>();
+        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
+
+        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
+
+        // Insere Sempre na Tabela Principal Primeiro
+        montaStatement(campos, classe, obj, con, cp, 2, idobject);
+
+        return idobject;
+    }
+
+    @Override
+    public void editingOne(Object[] obj, Connection con) throws SQLException, IllegalAccessException {
+        Class<?> classe = obj.getClass();
+        Field[] campos = classe.getDeclaredFields();
+
+        List<String> cp = new ArrayList<String>();
+
+        List<String> camposAnotacoes = new ArrayList<String>();
+
+        List<String> ids = new ArrayList<String>();
+        List<Class<?>> listObjects = new ArrayList<Class<?>>();
+        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
+
+        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
+
+        // Insere Sempre na Tabela Principal Primeiro
+        for(Object ob: obj){
+            Field as = retid(campos);
+            montaStatement(campos, classe, ob, con, cp, 2, Integer.parseInt(as.get(ob).toString()));
+        }
+
     }
 
     @Override
@@ -268,13 +332,29 @@ public class PainCrud implements MethodsCrud {
         return ret;
     }
 
+    public Field retid(Field[] campos) {
+        Field ret = null;
+
+
+        for (Field c : campos) {
+            Annotation[] a = c.getDeclaredAnnotations();
+            if (a.length > 0) {
+                for (Annotation b : a) {
+                    Class<?> d = b.annotationType();
+                    if (d.getSimpleName().equals("Id")) {
+                        ret = c;
+                    }
+                }
+            }
+        }
+
+
+        return ret;
+    }
+
     public int montaStatement(Field[] campos, Class<?> classe, Object obj, Connection con, List<String> cp, int tipo,
             int idobject) throws SQLException, IllegalAccessException {
 
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        Annotation[] an = classe.getAnnotations();
-        Class<?> ano = an[0].annotationType();
         String alias = classe.getAnnotation(Alias.class).value();
         sql = constructorQuery(tipo, cp, alias, idobject);
         stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -294,7 +374,8 @@ public class PainCrud implements MethodsCrud {
         while (rs.next()) {
             id = rs.getInt(1);
         }
-
+        rs.close();
+        stmt.close();
         return id;
     }
 

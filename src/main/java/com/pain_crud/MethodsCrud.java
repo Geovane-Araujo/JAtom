@@ -40,37 +40,51 @@ public interface MethodsCrud {
      * @return
      * @throws SQLException
      */
+    @Deprecated
     public int insertedOne(Object obj, Class clazz, Connection con) throws SQLException, IllegalAccessException;
+
+    public int insertedOne(Object obj, Connection con) throws SQLException, IllegalAccessException;
 
     /**
      *  Método responsável por fazer o insert de uma lista de objectos, só que diferente do All ele ignora as anotações ListObjects e Object
      *
      * @param obj objeto a ser inserido
-     * @param clazz Classe Principal do Objeto
      * @param con Objeto com os Atributos de Conexão
      * Não há retorno
      * @throws SQLException
      */
-    public void listInsertedOne(Object[] obj, Class clazz, Connection con) throws SQLException, IllegalAccessException;
-    /**
-     *  Método responsável por fazer o insert, só que diferente do All ele ignora as anotações ListObjects e Object
-     *
-     * @param obj objeto a ser inserido
-     * @param clazz Classe Principal do Objeto
-     * @return
-     * @throws SQLException
-     */
+    public void insertedOne(Object[] obj, Connection con) throws SQLException, IllegalAccessException;
+
     //Editing
     /**
      *  Método responsável por fazer o Editing, só que diferente do All ele ignora as anotações ListObjects e Object
      *
      * @param obj objeto a ser inserido
-     * @param clazz Classe Principal do Objeto
      * @param idobject id do item a ser editado
      * @return
      * @throws SQLException
      */
+    @Deprecated
     public int editingOne(Object obj, Class clazz, Connection con,int idobject) throws SQLException, IllegalAccessException;
+    /**
+     *  Método responsável por fazer o Editing, só que diferente do All ele ignora as anotações ListObjects e Object
+     *
+     * @param obj objeto a ser inserido
+     * @param con conexão aberta
+     * @param idobject id do item a ser editado
+     * @return
+     * @throws SQLException
+     */
+    public int editingOne(Object obj,Connection con,int idobject) throws SQLException, IllegalAccessException;
+    /**
+     *  Método responsável por fazer o Editing, só que diferente do All ele ignora as anotações ListObjects e Object
+     *
+     * @param obj objeto a ser inserido
+     * @param con conexão aberta
+     * @return
+     * @throws SQLException
+     */
+    public void editingOne(Object[] obj, Connection con) throws SQLException, IllegalAccessException;
 
     /**
      * Método Responsável por fazer a exclusão de um objeto
