@@ -1,7 +1,7 @@
-# pain-crud
+# Atom Framework
 
 
-Sou horrivel pra dar nome as coisas rsrs
+
 
 lib é semelhante ao hibernate.
 
