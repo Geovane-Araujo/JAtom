@@ -17,13 +17,13 @@ public class Atom implements MethodsCrud {
 
 
     @Override
+    @Deprecated
     public int insertedOne(Object obj, Class clazz, Connection con) throws SQLException, IllegalAccessException {
 
         Class<?> classe = obj.getClass();
         Field[] campos = classe.getDeclaredFields();
 
         List<String> cp = new ArrayList<String>();
-
         List<String> camposAnotacoes = new ArrayList<String>();
 
         List<String> ids = new ArrayList<String>();
@@ -40,11 +40,11 @@ public class Atom implements MethodsCrud {
 
     @Override
     public int insertedOne(Object obj, Connection con) throws SQLException, IllegalAccessException {
+
         Class<?> classe = obj.getClass();
         Field[] campos = classe.getDeclaredFields();
 
         List<String> cp = new ArrayList<String>();
-
         List<String> camposAnotacoes = new ArrayList<String>();
 
         List<String> ids = new ArrayList<String>();
@@ -386,6 +386,7 @@ public class Atom implements MethodsCrud {
      * @param camposAnotacoes campos de anotações
      * @param ids             ids dos campos
      */
+    @Deprecated
     public void separaObject(List<Class<?>> objectLocal, List<String> cp, List<Class<?>> listObjects, Field[] campos,
             List<String> camposAnotacoes, List<String> ids) {
 
@@ -393,26 +394,55 @@ public class Atom implements MethodsCrud {
             campo.setAccessible(false);
             if (campo.getAnnotations().length > 0) {
                 Annotation[] an = campo.getDeclaredAnnotations();
-                if (an.length > 0) {
-                    for (Annotation ano : an) {
-                        Class<?> anotacao = ano.annotationType();
-                        String nameAn = anotacao.getSimpleName();
-                        if (!nameAn.equals("Ignore")) {
-                            if (nameAn.equals("Id")) {
-                                ids.add(campo.getName());
-                            } else if (nameAn.equals("ListObjectLocal")) {
-                                Class<?> a = (Class<?>) ((ParameterizedType) campo.getGenericType())
-                                        .getActualTypeArguments()[0];
-                                Field[] f = a.getDeclaredFields();
-                                listObjects.add(a);
-                                camposAnotacoes.add(campo.getName());
-                            } else if (nameAn.equals("ObjectLocal")) {
-                                objectLocal.add((Class<?>) campo.getType());
-                                camposAnotacoes.add(campo.getName());
-                            } else {
-                                camposAnotacoes.add(campo.getName());
-                                cp.add(campo.getName());
-                            }
+                for (Annotation ano : an) {
+                    Class<?> anotacao = ano.annotationType();
+                    String nameAn = anotacao.getSimpleName();
+                    if (!nameAn.equals("Ignore")) {
+                        if (nameAn.equals("ListObjectLocal")) {
+                            Class<?> a = (Class<?>) ((ParameterizedType) campo.getGenericType())
+                                    .getActualTypeArguments()[0];
+                            Field[] f = a.getDeclaredFields();
+                            listObjects.add(a);
+                            camposAnotacoes.add(campo.getName());
+                        } else if (nameAn.equals("ObjectLocal")) {
+                            objectLocal.add((Class<?>) campo.getType());
+                            camposAnotacoes.add(campo.getName());
+                        } else {
+                            camposAnotacoes.add(campo.getName());
+                            cp.add(campo.getName());
+                        }
+                    }
+                }
+            } else {
+                camposAnotacoes.add(campo.getName());
+                cp.add(campo.getName());
+            }
+        }
+    }
+
+    public void separaObject(List<Class<?>> objectLocal, List<String> cp, List<Class<?>> listObjects, Field[] campos,
+                             List<String> camposAnotacoes) {
+
+        for (Field campo : campos) {
+            campo.setAccessible(false);
+            if (campo.getAnnotations().length > 0) {
+                Annotation[] an = campo.getDeclaredAnnotations();
+                for (Annotation ano : an) {
+                    Class<?> anotacao = ano.annotationType();
+                    String nameAn = anotacao.getSimpleName();
+                    if (!nameAn.equals("Ignore")) {
+                        if (nameAn.equals("ListObjectLocal")) {
+                            Class<?> a = (Class<?>) ((ParameterizedType) campo.getGenericType())
+                                    .getActualTypeArguments()[0];
+                            Field[] f = a.getDeclaredFields();
+                            listObjects.add(a);
+                            camposAnotacoes.add(campo.getName());
+                        } else if (nameAn.equals("ObjectLocal")) {
+                            objectLocal.add((Class<?>) campo.getType());
+                            camposAnotacoes.add(campo.getName());
+                        } else {
+                            camposAnotacoes.add(campo.getName());
+                            cp.add(campo.getName());
                         }
                     }
                 }

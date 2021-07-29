@@ -3,7 +3,7 @@ package com.atom.model;
 import com.atom.*;
 
 import java.util.List;
-@Alias(value="pessoa_pessoa")
+@Alias(value="pessoa")
 public class Pessoa {
 
     @Ignore
