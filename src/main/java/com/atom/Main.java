@@ -24,10 +24,11 @@ public class Main {
 
                 int obj =  c.insertedOne(p,con);
                 p.setNome("Ednak");
-                Object edit = c.editingOne(p,Pessoa.class,con, obj);
-                c.deleted(con,obj,"Pessoa");
-                List<Pessoa> a = (List<Pessoa>) c.getAll(Pessoa.class,con,"SELECT id, nome, idade FROM pessoa");
-                Object b = (Pessoa) c.getOne(Pessoa.class,con,"SELECT * FROM pessoa where id = 1");
+                p.setIdpessoa(obj);
+                c.editingOne(p,con);
+                c.deleted(con,"Pessoa","idpessoa",obj);
+                List<Pessoa> a = (List<Pessoa>) c.getAll(Pessoa.class,con,"SELECT idpessoa, nome, idade FROM pessoa");
+                Object b = (Pessoa) c.getOne(Pessoa.class,con,"SELECT * FROM pessoa where idpessoa = 1");
                 System.out.println(obj);
             }
             catch (SQLException e){

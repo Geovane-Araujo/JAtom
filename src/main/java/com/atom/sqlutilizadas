@@ -1,5 +1,0 @@
-create table telefones(
-                          idTelefone serial primary key,
-                          telefone varchar,
-                          idpessoa int
-);

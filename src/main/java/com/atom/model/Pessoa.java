@@ -3,7 +3,7 @@ package com.atom.model;
 import com.atom.*;
 
 import java.util.List;
-@Alias(value="pessoa")
+@TableName(value="pessoa")
 public class Pessoa {
 
     @Ignore
@@ -16,6 +16,7 @@ public class Pessoa {
     private Telefones tel;
     @ListObjectLocal
     private List<Telefones> telw;
+
 
     public Pessoa() {
     }

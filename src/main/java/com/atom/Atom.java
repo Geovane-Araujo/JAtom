@@ -1,166 +1,117 @@
 package com.atom;
 
 import com.google.gson.Gson;
+import org.sqlite.SQLiteConnection;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.sql.*;
 import java.util.*;
 
-public class Atom implements MethodsCrud {
+public class Atom {
 
-    String sql = "";
-    PreparedStatement stmt = null;
-    ResultSet rs = null;
+//    @Override
+//    public int insertedOne(Object obj, Connection con) throws SQLException, IllegalAccessException {
+//
+//        Class<?> classe = obj.getClass();
+//        Field[] campos = classe.getDeclaredFields();
+//
+//        List<String> cp = new ArrayList<String>();
+//        List<String> camposAnotacoes = new ArrayList<String>();
+//
+//        List<String> ids = new ArrayList<String>();
+//        List<Class<?>> listObjects = new ArrayList<Class<?>>();
+//        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
+//
+//        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
+//
+//        int id = montaStatement(campos, classe, obj, con, cp, 1, 0);
+//
+//        return id;
+//    }
+    /**
+     * Método responsável por fazer o insert, só que diferente do All ele ignora as anotações ListObjects e Object
+     *
+     * @param obj objeto a ser inserido
+     * @param con Objeto com os Atributos de Conexão
+     * @return
+     * @throws SQLException
+     **/
+    public static int insertedOne(Object obj, Connection con) throws SQLException, IllegalAccessException {
 
-    Hashtable retorno = new Hashtable();
+        int id = 0;
+        ResultSet rs = null;
 
-
-    @Override
-    @Deprecated
-    public int insertedOne(Object obj, Class clazz, Connection con) throws SQLException, IllegalAccessException {
-
-        Class<?> classe = obj.getClass();
-        Field[] campos = classe.getDeclaredFields();
-
-        List<String> cp = new ArrayList<String>();
-        List<String> camposAnotacoes = new ArrayList<String>();
-
-        List<String> ids = new ArrayList<String>();
-        List<Class<?>> listObjects = new ArrayList<Class<?>>();
-        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
-
-        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
-
-        // Insere Sempre na Tabela Principal Primeiro
-        int id = montaStatement(campos, classe, obj, con, cp, 1, 0);
-
+        PreparedStatement stmt = contructorCommand(obj,con,0);
+        stmt.execute();
+        rs = stmt.getGeneratedKeys();
+        while (rs.next()) {
+            id = rs.getInt(1);
+        }
         return id;
     }
 
-    @Override
-    public int insertedOne(Object obj, Connection con) throws SQLException, IllegalAccessException {
-
-        Class<?> classe = obj.getClass();
-        Field[] campos = classe.getDeclaredFields();
-
-        List<String> cp = new ArrayList<String>();
-        List<String> camposAnotacoes = new ArrayList<String>();
-
-        List<String> ids = new ArrayList<String>();
-        List<Class<?>> listObjects = new ArrayList<Class<?>>();
-        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
-
-        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
-
-        int id = montaStatement(campos, classe, obj, con, cp, 1, 0);
-
-        return id;
+//    @Override
+//    public int editingOne(Object obj, Connection con) throws SQLException, IllegalAccessException {
+//
+//        Class<?> classe = obj.getClass();
+//        Field[] campos = classe.getDeclaredFields();
+//
+//        List<String> cp = new ArrayList<String>();
+//
+//        List<String> camposAnotacoes = new ArrayList<String>();
+//
+//        List<String> ids = new ArrayList<String>();
+//        List<Class<?>> listObjects = new ArrayList<Class<?>>();
+//        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
+//
+//        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
+//
+//        montaStatement(campos, classe, obj, con, cp, 2, idobject);
+//
+//        return idobject;
+//    }
+    /**
+     *  Método responsável por fazer o Editing, só que diferente do All ele ignora as anotações ListObjects e Object
+     *
+     * @param obj objeto a ser inserido
+     * @param con conexão aberta
+     * @return
+     * @throws SQLException
+     */
+    public static void editingOne(Object obj, Connection con) throws SQLException, IllegalAccessException {
+        PreparedStatement stmt = contructorCommand(obj,con,1);
+        stmt.execute();
     }
 
-    @Override
-    public void insertedOne(Object[] obj, Connection con) throws SQLException, IllegalAccessException {
-        Class<?> classe = obj.getClass();
-        Field[] campos = classe.getDeclaredFields();
+//    @Override
+//    public void deleted(Connection con, int idobject, String className) throws SQLException {
+//
+//        sql = constructorQuery(className, idobject);
+//        PreparedStatement stmt = null;
+//        stmt = con.prepareStatement(sql);
+//        stmt.execute();
+//    }
+    /**
+     * Método Responsável por fazer a exclusão de um objeto
+     *
+     * @param con Conexão Aberta
+     * @param className Nome da Tabela
+     * @return
+     * @throws SQLException
+     */
+    public static void deleted(Connection con, String className, String identity, Object obj) throws SQLException {
 
-        List<String> cp = new ArrayList<String>();
-
-        List<String> camposAnotacoes = new ArrayList<String>();
-
-        List<String> ids = new ArrayList<String>();
-        List<Class<?>> listObjects = new ArrayList<Class<?>>();
-        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
-
-        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
-
-        for(Object ob : obj){
-            montaStatement(campos, classe, ob, con, cp, 1, 0);
-        }
-    }
-
-    @Override
-    public int editingOne(Object obj, Class clazz, Connection con, int idobject) throws SQLException, IllegalAccessException {
-
-        Class<?> classe = obj.getClass();
-        Field[] campos = classe.getDeclaredFields();
-
-        List<String> cp = new ArrayList<String>();
-
-        List<String> camposAnotacoes = new ArrayList<String>();
-
-        List<String> ids = new ArrayList<String>();
-        List<Class<?>> listObjects = new ArrayList<Class<?>>();
-        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
-
-        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
-
-        montaStatement(campos, classe, obj, con, cp, 2, idobject);
-
-        return idobject;
-    }
-
-    @Override
-    public int editingOne(Object obj, Connection con, int idobject) throws SQLException, IllegalAccessException {
-
-        Class<?> classe = obj.getClass();
-        Field[] campos = classe.getDeclaredFields();
-
-        List<String> cp = new ArrayList<String>();
-
-        List<String> camposAnotacoes = new ArrayList<String>();
-
-        List<String> ids = new ArrayList<String>();
-        List<Class<?>> listObjects = new ArrayList<Class<?>>();
-        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
-
-        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
-
-        montaStatement(campos, classe, obj, con, cp, 2, idobject);
-
-        return idobject;
-    }
-
-    @Override
-    public void editingOne(Object[] obj, Connection con) throws SQLException, IllegalAccessException {
-        Class<?> classe = obj.getClass();
-        Field[] campos = classe.getDeclaredFields();
-
-        List<String> cp = new ArrayList<String>();
-
-        List<String> camposAnotacoes = new ArrayList<String>();
-
-        List<String> ids = new ArrayList<String>();
-        List<Class<?>> listObjects = new ArrayList<Class<?>>();
-        List<Class<?>> objectLocal = new ArrayList<Class<?>>();
-
-        separaObject(objectLocal, cp, listObjects, campos, camposAnotacoes, ids);
-
-        for(Object ob: obj){
-            Field as = retid(campos);
-            montaStatement(campos, classe, ob, con, cp, 2, Integer.parseInt(as.get(ob).toString()));
-        }
-
-    }
-
-    @Override
-    public Object deleted(Connection con, int idobject, String className) throws SQLException {
-
-        // Insere Sempre na Tabela Principal Primeiro
-        sql = constructorQuery(className, idobject);
+        String sql = "";
         PreparedStatement stmt = null;
 
+        sql = "DELETE FROM " + className + " WHERE "+identity+" =  " + obj;
         stmt = con.prepareStatement(sql);
         stmt.execute();
-
-        retorno.put("ret", "success");
-        retorno.put("msg", "ok");
-        retorno.put("id", idobject);
-
-        return retorno;
     }
 
-    @Override
-    public Object getAll(Class clazz,Connection con, String sql) throws SQLException {
+    public static Object getAll(Class clazz,Connection con, String sql) throws SQLException {
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -190,8 +141,7 @@ public class Atom implements MethodsCrud {
         return obj;
     }
 
-    @Override
-    public Object getOne(Class cazz,Connection con, String sql) throws SQLException {
+    public static Object getOne(Class cazz,Connection con, String sql) throws SQLException {
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -221,77 +171,57 @@ public class Atom implements MethodsCrud {
         return ret;
     }
 
-    @Override
-    public void executeQuery(Connection con, String sql) throws SQLException {
+    public static void executeQuery(Connection con, String sql) throws SQLException {
+        PreparedStatement stmt = null;
         stmt = con.prepareStatement(sql);
         stmt.execute();
         stmt.close();
     }
 
-    /**
-     *
-     * @param tipo      Tipo 1 - Insert, 2 - Update, 3 Delete e 4- Select
-     * @param colunas   Colunas dos Campos do banco de dados que seão inseridos
-     * @param className Nome da classe pois é o mesmo do banco de dados
-     * @return Retorna uma String com a Query
-     */
-    public String constructorQuery(int tipo, List<String> colunas, String className, int id) {
+//    /**
+//     *
+//     * @param tipo      Tipo 1 - Insert, 2 - Update, 3 Delete e 4- Select
+//     * @param colunas   Colunas dos Campos do banco de dados que seão inseridos
+//     * @param className Nome da classe pois é o mesmo do banco de dados
+//     * @return Retorna uma String com a Query
+//     */
+//    public String constructorQuery(int tipo, List<String> colunas, String className, int id) {
+//
+//        String sql = "";
+//        // inserted
+//        if (tipo == 1) {
+//            sql = "INSERT INTO " + className + " (";
+//            String atributos = "";
+//            String ins = "";
+//            for (String name : colunas) {
+//                atributos += name + ",";
+//                ins += "?,";
+//            }
+//            atributos = atributos.substring(0, atributos.length() - 1);
+//            ins = ins.substring(0, ins.length() - 1);
+//            sql += atributos + ") VALUES (" + ins + ")";
+//
+//        } else if (tipo == 2) {
+//            sql = "UPDATE " + className + " SET ";
+//            String atributos = "";
+//            String ins = " WHERE ID = " + id;
+//            for (String name : colunas) {
+//                atributos += name + " = ?,";
+//
+//            }
+//            atributos = atributos.substring(0, atributos.length() - 1);
+//            sql += atributos + ins;
+//        }
+//        return sql;
+//    }
 
-        String sql = "";
-        // inserted
-        if (tipo == 1) {
-            sql = "INSERT INTO " + className + " (";
-            String atributos = "";
-            String ins = "";
-            for (String name : colunas) {
-                atributos += name + ",";
-                ins += "?,";
-            }
-            atributos = atributos.substring(0, atributos.length() - 1);
-            ins = ins.substring(0, ins.length() - 1);
-            sql += atributos + ") VALUES (" + ins + ")";
-
-        } else if (tipo == 2) {
-            sql = "UPDATE " + className + " SET ";
-            String atributos = "";
-            String ins = " WHERE ID = " + id;
-            for (String name : colunas) {
-                atributos += name + " = ?,";
-
-            }
-            atributos = atributos.substring(0, atributos.length() - 1);
-            sql += atributos + ins;
-        }
-        return sql;
-    }
-
-    public String constructorQuery(String className, int id) {
-
-        String sql = "";
-        sql = "DELETE FROM " + className + " WHERE id =  " + id;
-
-        return sql;
-    }
-
-    /**
-     * Método Responsável por verificar as Anotações
-     *
-     * @param an     Aqui entra um Array, pois cada compo pode ter mais de uma
-     *               anotação por campo
-     * @param tipoAn Tipo da Anotação [ID, FK, ListObjects, Objects]
-     * @return
-     */
-    public boolean verificaAnotacao(Annotation[] an, String tipoAn) {
-        boolean ret = false;
-
-        for (Annotation a : an) {
-            Class<?> anotacao = a.annotationType();
-            if (tipoAn.equals(anotacao.getSimpleName())) {
-                return true;
-            }
-        }
-        return ret;
-    }
+//    public String constructorQuery(String className, int id) {
+//
+//        String sql = "";
+//        sql = "DELETE FROM " + className + " WHERE id =  " + id;
+//
+//        return sql;
+//    }
 
     /**
      * Método Responsável por retirar todas as anotações do campos
@@ -328,128 +258,189 @@ public class Atom implements MethodsCrud {
         return ret;
     }
 
-    public Field retid(Field[] campos) {
-        Field ret = null;
+//    public int montaStatement(Field[] campos, Class<?> classe, Object obj, Connection con, List<String> cp, int tipo,
+//            int idobject) throws SQLException, IllegalAccessException {
+//
+//        String alias = classe.getAnnotation(Alias.class).value();
+//        sql = constructorQuery(tipo, cp, alias, idobject);
+//        stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+//
+//        int i = 1;
+//        List<Field> notAnotation = retiraAnotacao(campos, 1);
+//
+//        for (Field campo : notAnotation) {
+//            campo.setAccessible(true);
+//            stmt.setObject(i, campo.get(obj));
+//            i++;
+//        }
+//
+//        stmt.execute();
+//        rs = stmt.getGeneratedKeys();
+//        int id = 0;
+//        while (rs.next()) {
+//            id = rs.getInt(1);
+//        }
+//        rs.close();
+//        stmt.close();
+//        return id;
+//    }
+
+//    /**
+//     *
+//     * @param objectLocal     List referente a anotação objectLocal
+//     * @param cp              Array de string referente aos campos que não tem chave
+//     *                        nem outro tipo de relacionamento
+//     * @param listObjects     List Referente ao objeto que é um relacionaento de um
+//     *                        para muitos
+//     * @param campos          campos Field do objeto class
+//     * @param camposAnotacoes campos de anotações
+//     * @param ids             ids dos campos
+//     */
+//    @Deprecated
+//    public void separaObject(List<Class<?>> objectLocal, List<String> cp, List<Class<?>> listObjects, Field[] campos,
+//            List<String> camposAnotacoes, List<String> ids) {
+//
+//        for (Field campo : campos) {
+//            campo.setAccessible(false);
+//            if (campo.getAnnotations().length > 0) {
+//                Annotation[] an = campo.getDeclaredAnnotations();
+//                for (Annotation ano : an) {
+//                    Class<?> anotacao = ano.annotationType();
+//                    String nameAn = anotacao.getSimpleName();
+//                    if (!nameAn.equals("Ignore")) {
+//                        if (nameAn.equals("ListObjectLocal")) {
+//                            Class<?> a = (Class<?>) ((ParameterizedType) campo.getGenericType())
+//                                    .getActualTypeArguments()[0];
+//                            Field[] f = a.getDeclaredFields();
+//                            listObjects.add(a);
+//                            camposAnotacoes.add(campo.getName());
+//                        } else if (nameAn.equals("ObjectLocal")) {
+//                            objectLocal.add((Class<?>) campo.getType());
+//                            camposAnotacoes.add(campo.getName());
+//                        } else {
+//                            camposAnotacoes.add(campo.getName());
+//                            cp.add(campo.getName());
+//                        }
+//                    }
+//                }
+//            } else {
+//                camposAnotacoes.add(campo.getName());
+//                cp.add(campo.getName());
+//            }
+//        }
+//    }
+//
+//    public void separaObject(List<Class<?>> objectLocal, List<String> cp, List<Class<?>> listObjects, Field[] campos,
+//                             List<String> camposAnotacoes) {
+//
+//        for (Field campo : campos) {
+//            campo.setAccessible(false);
+//            if (campo.getAnnotations().length > 0) {
+//                Annotation[] an = campo.getDeclaredAnnotations();
+//                for (Annotation ano : an) {
+//                    Class<?> anotacao = ano.annotationType();
+//                    String nameAn = anotacao.getSimpleName();
+//                    if (!nameAn.equals("Ignore")) {
+//                        if (nameAn.equals("ListObjectLocal")) {
+//                            Class<?> a = (Class<?>) ((ParameterizedType) campo.getGenericType())
+//                                    .getActualTypeArguments()[0];
+//                            Field[] f = a.getDeclaredFields();
+//                            listObjects.add(a);
+//                            camposAnotacoes.add(campo.getName());
+//                        } else if (nameAn.equals("ObjectLocal")) {
+//                            objectLocal.add((Class<?>) campo.getType());
+//                            camposAnotacoes.add(campo.getName());
+//                        } else {
+//                            camposAnotacoes.add(campo.getName());
+//                            cp.add(campo.getName());
+//                        }
+//                    }
+//                }
+//            } else {
+//                camposAnotacoes.add(campo.getName());
+//                cp.add(campo.getName());
+//            }
+//        }
+//    }
 
 
-        for (Field c : campos) {
-            Annotation[] a = c.getDeclaredAnnotations();
-            if (a.length > 0) {
-                for (Annotation b : a) {
-                    Class<?> d = b.annotationType();
-                    if (d.getSimpleName().equals("Id")) {
-                        ret = c;
-                    }
+    private static PreparedStatement contructorCommand(Object clazz, Connection con, int type) throws SQLException, IllegalAccessException {
+
+        PreparedStatement stmt = null;
+
+        String sql = "";
+        Field[] fields = clazz.getClass().getDeclaredFields();
+        String strfield = "",strstatements = "";
+        List<Object> liValues = new ArrayList<>();
+
+        String className = "";
+
+        //Aqui pega o nome da tabela, caso não tiver o alias pega o nome da classe
+        if(clazz.getClass().getAnnotation(TableName.class) != null){
+            className = clazz.getClass().getAnnotation(TableName.class).value();
+        }
+        else {
+            className = clazz.getClass().getSimpleName();
+        }
+
+        //insert
+        if(type == 0){
+            int i = 1;
+            for (Field di: fields) {
+
+                if(di.getAnnotation(Id.class) == null && di.getAnnotation(Ignore.class) == null && di.getAnnotation(ListObjectLocal.class
+                ) == null && di.getAnnotation(ObjectLocal.class) == null){
+                    di.setAccessible(true);
+                    strfield += di.getName() + ",";
+                    strstatements += "?,";
+                    liValues.add(di.get(clazz));
+                    i++;
                 }
             }
-        }
+            strstatements = strstatements.substring(0,strstatements.length() - 1);
+            strfield = strfield.substring(0,strfield.length() - 1);
 
+            sql = "INSERT INTO " + className + " ("+strfield+") values " + "("+strstatements+");";
+            stmt = con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
 
-        return ret;
-    }
-
-    public int montaStatement(Field[] campos, Class<?> classe, Object obj, Connection con, List<String> cp, int tipo,
-            int idobject) throws SQLException, IllegalAccessException {
-
-        String alias = classe.getAnnotation(Alias.class).value();
-        sql = constructorQuery(tipo, cp, alias, idobject);
-        stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-
-        int i = 1;
-        List<Field> notAnotation = retiraAnotacao(campos, 1);
-
-        for (Field campo : notAnotation) {
-            campo.setAccessible(true);
-            stmt.setObject(i, campo.get(obj));
-            i++;
-        }
-
-        stmt.execute();
-        rs = stmt.getGeneratedKeys();
-        int id = 0;
-        while (rs.next()) {
-            id = rs.getInt(1);
-        }
-        rs.close();
-        stmt.close();
-        return id;
-    }
-
-    /**
-     *
-     * @param objectLocal     List referente a anotação objectLocal
-     * @param cp              Array de string referente aos campos que não tem chave
-     *                        nem outro tipo de relacionamento
-     * @param listObjects     List Referente ao objeto que é um relacionaento de um
-     *                        para muitos
-     * @param campos          campos Field do objeto class
-     * @param camposAnotacoes campos de anotações
-     * @param ids             ids dos campos
-     */
-    @Deprecated
-    public void separaObject(List<Class<?>> objectLocal, List<String> cp, List<Class<?>> listObjects, Field[] campos,
-            List<String> camposAnotacoes, List<String> ids) {
-
-        for (Field campo : campos) {
-            campo.setAccessible(false);
-            if (campo.getAnnotations().length > 0) {
-                Annotation[] an = campo.getDeclaredAnnotations();
-                for (Annotation ano : an) {
-                    Class<?> anotacao = ano.annotationType();
-                    String nameAn = anotacao.getSimpleName();
-                    if (!nameAn.equals("Ignore")) {
-                        if (nameAn.equals("ListObjectLocal")) {
-                            Class<?> a = (Class<?>) ((ParameterizedType) campo.getGenericType())
-                                    .getActualTypeArguments()[0];
-                            Field[] f = a.getDeclaredFields();
-                            listObjects.add(a);
-                            camposAnotacoes.add(campo.getName());
-                        } else if (nameAn.equals("ObjectLocal")) {
-                            objectLocal.add((Class<?>) campo.getType());
-                            camposAnotacoes.add(campo.getName());
-                        } else {
-                            camposAnotacoes.add(campo.getName());
-                            cp.add(campo.getName());
-                        }
-                    }
-                }
-            } else {
-                camposAnotacoes.add(campo.getName());
-                cp.add(campo.getName());
+            i = 1;
+            for (Object ob: liValues) {
+                stmt.setObject(i,ob);
+                i++;
             }
         }
-    }
-
-    public void separaObject(List<Class<?>> objectLocal, List<String> cp, List<Class<?>> listObjects, Field[] campos,
-                             List<String> camposAnotacoes) {
-
-        for (Field campo : campos) {
-            campo.setAccessible(false);
-            if (campo.getAnnotations().length > 0) {
-                Annotation[] an = campo.getDeclaredAnnotations();
-                for (Annotation ano : an) {
-                    Class<?> anotacao = ano.annotationType();
-                    String nameAn = anotacao.getSimpleName();
-                    if (!nameAn.equals("Ignore")) {
-                        if (nameAn.equals("ListObjectLocal")) {
-                            Class<?> a = (Class<?>) ((ParameterizedType) campo.getGenericType())
-                                    .getActualTypeArguments()[0];
-                            Field[] f = a.getDeclaredFields();
-                            listObjects.add(a);
-                            camposAnotacoes.add(campo.getName());
-                        } else if (nameAn.equals("ObjectLocal")) {
-                            objectLocal.add((Class<?>) campo.getType());
-                            camposAnotacoes.add(campo.getName());
-                        } else {
-                            camposAnotacoes.add(campo.getName());
-                            cp.add(campo.getName());
-                        }
-                    }
+        else {
+            String identifield = "";
+            Object vlIdentifield = 0;
+            int i = 1;
+            for (Field di: fields) {
+                if(di.getAnnotation(Id.class) == null && di.getAnnotation(Ignore.class) == null && di.getAnnotation(ListObjectLocal.class
+                ) == null && di.getAnnotation(ObjectLocal.class) == null){
+                    di.setAccessible(true);
+                    strfield += di.getName() + " = ?,";
+                    liValues.add(di.get(clazz));
+                    i++;
                 }
-            } else {
-                camposAnotacoes.add(campo.getName());
-                cp.add(campo.getName());
+                if(di.getAnnotation(Id.class) != null){
+                    di.setAccessible(true);
+                    identifield = di.getName();
+                    vlIdentifield = di.get(clazz);
+
+                }
             }
+            strfield = strfield.substring(0,strfield.length() - 1);
+
+            sql = "UPDATE  " + className + " SET " + strfield + " where " + identifield + " = ?";
+            stmt = con.prepareStatement(sql);
+
+            i = 1;
+            for (Object ob: liValues) {
+                stmt.setObject(i,ob);
+                i++;
+            }
+            stmt.setObject((liValues.size() + 1),vlIdentifield);
         }
+
+        return stmt;
     }
 }
