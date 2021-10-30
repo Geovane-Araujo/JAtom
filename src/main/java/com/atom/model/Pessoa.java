@@ -10,13 +10,24 @@ public class Pessoa {
     private boolean add = false;
     @Id
     private int idpessoa;
+
     private String nome;
+
     private int idade;
+
     @ObjectLocal
     private Telefones tel;
-    @ListObjectLocal
-    private List<Telefones> telw;
 
+    @ListObjectLocal
+    private List<Telefones> telefones;
+
+    public List<Telefones> getTelefones() {
+        return telefones;
+    }
+
+    public void setTelefones(List<Telefones> telefones) {
+        this.telefones = telefones;
+    }
 
     public Pessoa() {
     }
@@ -64,13 +75,5 @@ public class Pessoa {
 
     public void setTel(Telefones tel) {
         this.tel = tel;
-    }
-
-    public List<Telefones> getTelw() {
-        return telw;
-    }
-
-    public void setTelw(List<Telefones> telw) {
-        this.telw = telw;
     }
 }

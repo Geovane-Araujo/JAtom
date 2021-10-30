@@ -40,6 +40,19 @@ public class ConectionsDatabases extends ConfigConection{
             catch (SQLException ex){
                 ret = false;
             }
+        } else if(super.getInstanceDb() == 4){
+            try {
+                Class.forName("org.sqlite.JDBC");
+                String url = "jdbc:sqlite:"+super.getHost()+"\\"+super.getDbName();
+                DriverManager.getConnection(url);
+                ret = true;
+            }
+            catch (ClassNotFoundException  e){
+                ret = false;
+            }
+            catch (SQLException ex){
+                ret = false;
+            }
         }
 
         return  ret;
@@ -52,8 +65,14 @@ public class ConectionsDatabases extends ConfigConection{
      */
     public  Connection newDbConection(String db) throws SQLException{
         Connection con = null;
-        String url = "jdbc:postgresql://"+super.getHost()+":"+super.getPort()+"/";
-        con = DriverManager.getConnection(url+db,super.getUser(),super.getPassword());
+        if(super.getInstanceDb() == 1){
+            String url = "jdbc:postgresql://"+super.getHost()+":"+super.getPort()+"/";
+            con = DriverManager.getConnection(url+db,super.getUser(),super.getPassword());
+        } else if(super.getInstanceDb() == 4){
+            String url = "jdbc:sqlite:"+super.getHost()+"\\"+super.getDbName();
+            con = DriverManager.getConnection(url);
+        }
+
         return con;
     }
 

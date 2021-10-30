@@ -7,9 +7,19 @@ public class Telefones {
 
     @Id
     private int idTelefone;
+
     private String telefone;
-    @Fk(value="id")
+
+    @Fk(value="idpessoa")
     private int idpessoa;
+
+
+    public Telefones() {
+    }
+
+    public Telefones(String telefone) {
+        this.telefone = telefone;
+    }
 
     public int getIdTelefone() {
         return idTelefone;

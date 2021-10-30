@@ -29,9 +29,86 @@ public class Atom {
         while (rs.next()) {
             id = rs.getInt(1);
         }
+
         return id;
     }
 
+    public static int inserted(Object obj, Connection con) throws SQLException, IllegalAccessException {
+
+        int id = 0;
+        ResultSet rs = null;
+
+        PreparedStatement stmt = contructorCommand(obj,con,0);
+        stmt.execute();
+        rs = stmt.getGeneratedKeys();
+        while (rs.next()) {
+            id = rs.getInt(1);
+        }
+
+        String colunaId = "";
+        Boolean recurse = true;
+        while(recurse){
+
+            Field[] fields = obj.getClass().getDeclaredFields();
+            for(Field fi : fields){
+
+                if(fi.getAnnotation(Id.class) != null){//#1
+                    colunaId = fi.getName();
+                }
+
+                if(fi.getAnnotation(ObjectLocal.class) != null){//#2
+
+                    fi.setAccessible(true);
+
+                    Object classObjFilho = fi.get(obj);
+
+                    if(classObjFilho != null){
+
+                        Field[] objFields = classObjFilho.getClass().getDeclaredFields();
+
+                        for(Field objField : objFields){
+
+                            if(objField.getAnnotation(Fk.class) != null && objField.getAnnotation(Fk.class).value().equals(colunaId)) {//#3
+                                objField.setAccessible(true);
+                                objField.set(classObjFilho,id);
+                            }
+                        }
+
+                        inserted(classObjFilho,con);
+                    }
+                }
+                if(fi.getAnnotation(ListObjectLocal.class) != null){
+
+                    fi.setAccessible(true);
+                    List<?> classListObjFilho = (List<?>) fi.get(obj);
+
+                    if(classListObjFilho != null){
+
+                        for(Object classObjFilho : classListObjFilho){
+                            Field[] objFields = classObjFilho.getClass().getDeclaredFields();
+
+                            for(Field objField : objFields){
+
+                                if(objField.getAnnotation(Fk.class) != null && objField.getAnnotation(Fk.class).value().equals(colunaId)) {//#3
+                                    objField.setAccessible(true);
+                                    objField.set(classObjFilho,id);
+                                }
+                            }
+
+                            inserted(classObjFilho,con);
+                        }
+                    }
+                }
+            }
+            recurse = false;
+        }
+        return id;
+    }
+    /**
+     *  #1 - Pega a coluna id da classe pai
+     *  #2 - pega o objeto a ser inserido no banco
+     *  #3 -
+     */
     /**
      *  Método responsável por fazer o Editing, só que diferente do All ele ignora as anotações ListObjects e Object
      *
