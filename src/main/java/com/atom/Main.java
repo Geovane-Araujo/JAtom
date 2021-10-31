@@ -35,8 +35,18 @@ public class Main {
             int obj =  c.inserted(p,con);
             p.setNome("Ednak");
             p.setIdpessoa(obj);
-            //c.editingOne(p,con);
+            final int[] x = {0};
+
+            tels.forEach(item -> {
+                item.setTelefone("44" + x[0]);
+                x[0]++;
+            });
+
+            tel.setTelefone("Thunai");
+            p.getTelefones().add(tel);
+            c.editing(p,con);
             //c.deleted(con,"Pessoa","idpessoa",obj);
+
             List<Pessoa> a = (List<Pessoa>) c.getAll(Pessoa.class,con,"SELECT idpessoa, nome, idade FROM pessoa");
             Object b = (Pessoa) c.getOne(Pessoa.class,con,"SELECT * FROM pessoa where idpessoa = 1");
             System.out.println(obj);

@@ -122,6 +122,92 @@ public class Atom {
         stmt.execute();
     }
 
+    public static void editing(Object obj, Connection con) throws SQLException, IllegalAccessException {
+        PreparedStatement stmt = contructorCommand(obj,con,1);
+        stmt.execute();
+
+        String colunaId = "";
+        Boolean recurse = true;
+        Object id = 0;
+
+        while(recurse){
+
+            Field[] fields = obj.getClass().getDeclaredFields();
+            for(Field fi : fields){
+
+                if(fi.getAnnotation(Id.class) != null){//#1
+                    colunaId = fi.getName();
+                    fi.setAccessible(true);
+                    id = fi.get(obj);
+                }
+
+                if(fi.getAnnotation(ObjectLocal.class) != null){//#2
+
+                    fi.setAccessible(true);
+
+                    Object classObjFilho = fi.get(obj);
+
+                    if(classObjFilho != null){
+
+                        Field[] objFields = classObjFilho.getClass().getDeclaredFields();
+                        boolean novo = false;
+                        for(Field objField : objFields){
+
+                            if(objField.getAnnotation(Fk.class) != null && objField.getAnnotation(Fk.class).value().equals(colunaId)) {//#3
+                                objField.setAccessible(true);
+
+                                Object variavel = objField.get(classObjFilho);
+
+                                if(variavel.equals(0) || variavel.equals("")){
+                                    novo = true;
+                                }
+                                objField.set(classObjFilho,id);
+                            }
+                        }
+                        if(novo)
+                            inserted(classObjFilho,con);
+                        else
+                            editing(classObjFilho,con);
+                    }
+                }
+                if(fi.getAnnotation(ListObjectLocal.class) != null){
+
+                    fi.setAccessible(true);
+                    List<?> classListObjFilho = (List<?>) fi.get(obj);
+
+                    if(classListObjFilho != null){
+
+                        for(Object classObjFilho : classListObjFilho){
+                            Field[] objFields = classObjFilho.getClass().getDeclaredFields();
+
+                            boolean novo = false;//verifica se é um novo objeto
+
+                            for(Field objField : objFields){
+
+                                if(objField.getAnnotation(Fk.class) != null && objField.getAnnotation(Fk.class).value().equals(colunaId)) {//#3
+                                    objField.setAccessible(true);
+
+                                    Object variavel = objField.get(classObjFilho);
+
+                                    if(variavel.equals(0) || variavel.equals("")){
+                                        novo = true;
+                                    }
+                                    objField.set(classObjFilho,id);
+                                }
+                            }
+
+                            if(novo)
+                                inserted(classObjFilho,con);
+                            else
+                                editing(classObjFilho,con);
+                        }
+                    }
+                }
+            }
+            recurse = false;
+        }
+    }
+
     /**
      * Método Responsável por fazer a exclusão de um objeto
      *
