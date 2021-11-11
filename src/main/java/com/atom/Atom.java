@@ -52,7 +52,10 @@ public class Atom {
             for(Field fi : fields){
 
                 if(fi.getAnnotation(Id.class) != null){//#1
-                    colunaId = fi.getName();
+                    if(fi.getAnnotation(Id.class).identificador().equals(""))
+                        colunaId = fi.getName();
+                    else
+                        colunaId = fi.getAnnotation(Id.class).identificador();
                 }
 
                 if(fi.getAnnotation(SimpleObject.class) != null){//#2
