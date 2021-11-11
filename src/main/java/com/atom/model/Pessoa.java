@@ -1,6 +1,6 @@
 package com.atom.model;
 
-import com.atom.*;
+import com.atom.anotations.*;
 
 import java.util.List;
 @TableName(value="pessoa")
@@ -8,6 +8,7 @@ public class Pessoa {
 
     @Ignore
     private boolean add = false;
+
     @Id
     private int idpessoa;
 
@@ -15,10 +16,10 @@ public class Pessoa {
 
     private int idade;
 
-    @ObjectLocal
+    @SimpleObject
     private Telefones tel;
 
-    @ListObjectLocal
+    @ListObject
     private List<Telefones> telefones;
 
     public List<Telefones> getTelefones() {

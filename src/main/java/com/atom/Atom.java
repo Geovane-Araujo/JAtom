@@ -1,11 +1,10 @@
 package com.atom;
 
+import com.atom.anotations.*;
 import com.google.gson.Gson;
-import org.sqlite.SQLiteConnection;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.sql.*;
 import java.util.*;
 
@@ -56,7 +55,7 @@ public class Atom {
                     colunaId = fi.getName();
                 }
 
-                if(fi.getAnnotation(ObjectLocal.class) != null){//#2
+                if(fi.getAnnotation(SimpleObject.class) != null){//#2
 
                     fi.setAccessible(true);
 
@@ -77,7 +76,7 @@ public class Atom {
                         inserted(classObjFilho,con);
                     }
                 }
-                if(fi.getAnnotation(ListObjectLocal.class) != null){
+                if(fi.getAnnotation(ListObject.class) != null){
 
                     fi.setAccessible(true);
                     List<?> classListObjFilho = (List<?>) fi.get(obj);
@@ -141,7 +140,7 @@ public class Atom {
                     id = fi.get(obj);
                 }
 
-                if(fi.getAnnotation(ObjectLocal.class) != null){//#2
+                if(fi.getAnnotation(SimpleObject.class) != null){//#2
 
                     fi.setAccessible(true);
 
@@ -170,7 +169,7 @@ public class Atom {
                             editing(classObjFilho,con);
                     }
                 }
-                if(fi.getAnnotation(ListObjectLocal.class) != null){
+                if(fi.getAnnotation(ListObject.class) != null){
 
                     fi.setAccessible(true);
                     List<?> classListObjFilho = (List<?>) fi.get(obj);
@@ -353,8 +352,8 @@ public class Atom {
             int i = 1;
             for (Field di: fields) {
 
-                if(di.getAnnotation(Id.class) == null && di.getAnnotation(Ignore.class) == null && di.getAnnotation(ListObjectLocal.class
-                ) == null && di.getAnnotation(ObjectLocal.class) == null){
+                if(di.getAnnotation(Id.class) == null && di.getAnnotation(Ignore.class) == null && di.getAnnotation(ListObject.class
+                ) == null && di.getAnnotation(SimpleObject.class) == null){
                     di.setAccessible(true);
                     strfield += di.getName() + ",";
                     strstatements += "?,";
@@ -379,8 +378,8 @@ public class Atom {
             Object vlIdentifield = 0;
             int i = 1;
             for (Field di: fields) {
-                if(di.getAnnotation(Id.class) == null && di.getAnnotation(Ignore.class) == null && di.getAnnotation(ListObjectLocal.class
-                ) == null && di.getAnnotation(ObjectLocal.class) == null){
+                if(di.getAnnotation(Id.class) == null && di.getAnnotation(Ignore.class) == null && di.getAnnotation(ListObject.class
+                ) == null && di.getAnnotation(SimpleObject.class) == null){
                     di.setAccessible(true);
                     strfield += di.getName() + " = ?,";
                     liValues.add(di.get(clazz));

@@ -1,6 +1,6 @@
 package com.atom.model;
 
-import com.atom.Fk;
+import com.atom.anotations.Fk;
 
 public class Enderecos {
 

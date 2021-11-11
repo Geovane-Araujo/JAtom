@@ -1,7 +1,7 @@
 package com.atom.model;
 
-import com.atom.Fk;
-import com.atom.Id;
+import com.atom.anotations.Fk;
+import com.atom.anotations.Id;
 
 public class Telefones {
 
