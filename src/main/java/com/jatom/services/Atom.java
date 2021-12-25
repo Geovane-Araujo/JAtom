@@ -1,4 +1,4 @@
-package com.jatom;
+package com.jatom.services;
 
 import com.google.gson.Gson;
 import com.jatom.anotations.*;
