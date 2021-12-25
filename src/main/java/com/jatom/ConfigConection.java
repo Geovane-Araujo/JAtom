@@ -1,4 +1,4 @@
-package com.atom;
+package com.jatom;
 
 /**
  *
