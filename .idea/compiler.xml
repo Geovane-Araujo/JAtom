@@ -6,11 +6,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="JAtom" />
         <module name="pain" />
+        <module name="JUseAtom" />
         <module name="pain-crud" />
         <module name="Atom" />
         <module name="AtomFramework" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="UseJAtom" target="8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

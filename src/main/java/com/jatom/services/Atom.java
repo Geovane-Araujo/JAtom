@@ -1,23 +1,18 @@
-package com.atom;
+package com.jatom.services;
 
-import com.atom.anotations.*;
 import com.google.gson.Gson;
+import com.jatom.anotations.*;
+import com.jatom.repository.JAtomRepository;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
 
-public class Atom {
-    /**
-     * Método responsável por fazer o insert, só que diferente do All ele ignora as anotações ListObjects e Object
-     *
-     * @param obj objeto a ser inserido
-     * @param con Objeto com os Atributos de Conexão
-     * @return
-     * @throws SQLException
-     **/
-    public static int insertedOne(Object obj, Connection con) throws SQLException, IllegalAccessException {
+public class Atom implements JAtomRepository {
+
+    @Override
+    @Deprecated
+    public int insertedOne(Object obj, Connection con) throws SQLException, IllegalAccessException {
 
         int id = 0;
         ResultSet rs = null;
@@ -32,7 +27,9 @@ public class Atom {
         return id;
     }
 
-    public static int inserted(Object obj, Connection con) throws SQLException, IllegalAccessException {
+    @Override
+    @Deprecated
+    public int inserted(Object obj, Connection con) throws SQLException, IllegalAccessException {
 
         int id = 0;
         ResultSet rs = null;
@@ -106,25 +103,17 @@ public class Atom {
         }
         return id;
     }
-    /**
-     *  #1 - Pega a coluna id da classe pai
-     *  #2 - pega o objeto a ser inserido no banco
-     *  #3 -
-     */
-    /**
-     *  Método responsável por fazer o Editing, só que diferente do All ele ignora as anotações ListObjects e Object
-     *
-     * @param obj objeto a ser inserido
-     * @param con conexão aberta
-     * @return
-     * @throws SQLException
-     */
-    public static void editingOne(Object obj, Connection con) throws SQLException, IllegalAccessException {
+
+    @Override
+    @Deprecated
+    public void editingOne(Object obj, Connection con) throws SQLException, IllegalAccessException {
         PreparedStatement stmt = contructorCommand(obj,con,1);
         stmt.execute();
     }
 
-    public static void editing(Object obj, Connection con) throws SQLException, IllegalAccessException {
+    @Override
+    @Deprecated
+    public void editing(Object obj, Connection con) throws SQLException, IllegalAccessException {
         PreparedStatement stmt = contructorCommand(obj,con,1);
         stmt.execute();
 
@@ -210,15 +199,9 @@ public class Atom {
         }
     }
 
-    /**
-     * Método Responsável por fazer a exclusão de um objeto
-     *
-     * @param con Conexão Aberta
-     * @param className Nome da Tabela
-     * @return
-     * @throws SQLException
-     */
-    public static void deleted(Connection con, String className, String identity, Object obj) throws SQLException {
+    @Override
+    @Deprecated
+    public void deleted(Connection con, String className, String identity, Object obj) throws SQLException {
 
         String sql = "";
         PreparedStatement stmt = null;
@@ -229,7 +212,9 @@ public class Atom {
         stmt.execute();
     }
 
-    public static Object getAll(Class clazz,Connection con, String sql) throws SQLException {
+    @Override
+    @Deprecated
+    public Object getAll(Class clazz,Connection con, String sql) throws SQLException {
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -259,7 +244,9 @@ public class Atom {
         return obj;
     }
 
-    public static Object getOne(Class cazz,Connection con, String sql) throws SQLException {
+    @Override
+    @Deprecated
+    public Object getOne(Class cazz,Connection con, String sql) throws SQLException {
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -289,46 +276,33 @@ public class Atom {
         return ret;
     }
 
-    public static void executeQuery(Connection con, String sql) throws SQLException {
+    @Override
+    public void executeQuery(String sql) throws SQLException, IllegalAccessException {
+
+    }
+
+    @Override
+    @Deprecated
+    public void executeQuery(Connection con, String sql) throws SQLException {
         PreparedStatement stmt = null;
         stmt = con.prepareStatement(sql);
         stmt.execute();
         stmt.close();
     }
 
-    /**
-     * Método Responsável por retirar todas as anotações do campos
-     *
-     * @param campos Campos ddo Objeto Mapeado
-     * @return campos da classe sem anotação pra gravar no banco
-     */
-    public List<Field> retiraAnotacao(Field[] campos, int tipo) {
-        List<Field> ret = new ArrayList<>();
+    @Override
+    public void save(Object obj) {
 
-        if (tipo == 1) {
-            for (Field c : campos) {
-                Annotation[] a = c.getDeclaredAnnotations();
-                if (a.length == 0) {
-                    ret.add(c);
-                }
-            }
-        } else {
-            for (Field c : campos) {
-                Annotation[] a = c.getDeclaredAnnotations();
-                if (a.length > 0) {
-                    for (Annotation b : a) {
-                        Class<?> d = b.annotationType();
-                        if (d.getSimpleName().equals("Fk")) {
-                            ret.add(c);
-                        }
-                    }
-                } else {
-                    ret.add(c);
-                }
-            }
-        }
+    }
 
-        return ret;
+    @Override
+    public List<Object> getAll(String sql) {
+        return null;
+    }
+
+    @Override
+    public Object get(String sql) {
+        return null;
     }
 
     private static PreparedStatement contructorCommand(Object clazz, Connection con, int type) throws SQLException, IllegalAccessException {
@@ -410,4 +384,6 @@ public class Atom {
 
         return stmt;
     }
+
+
 }

@@ -1,4 +1,4 @@
-package com.atom;
+package com.jatom;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
