@@ -6,8 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="JAtom" />
         <module name="pain" />
+        <module name="TesteLib" />
+        <module name="JAtom" />
         <module name="JUseAtom" />
         <module name="pain-crud" />
         <module name="Atom" />

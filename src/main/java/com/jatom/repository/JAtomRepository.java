@@ -114,12 +114,13 @@ public interface JAtomRepository {
      */
     public void executeQuery(Connection con, String sql) throws SQLException, IllegalAccessException;
 
-
     /**
      * Método responsável por salvar um objeto
      * @param obj
      */
     public void save(Object obj);
+
+    public void operationPercistence(Object obj, Connection con, int type) throws IllegalAccessException, SQLException;
 
     public List<Object> getAll(String sql);
 

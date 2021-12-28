@@ -1,14 +1,20 @@
 package com.jatom.services;
 
 import com.google.gson.Gson;
+import com.jatom.ConnectionDatabase;
 import com.jatom.anotations.*;
 import com.jatom.repository.JAtomRepository;
 
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Atom implements JAtomRepository {
+
+    Connection con = null;
+
+    ConnectionDatabase connectionDatabase = new ConnectionDatabase();
 
     @Override
     @Deprecated
@@ -293,6 +299,114 @@ public class Atom implements JAtomRepository {
     @Override
     public void save(Object obj) {
 
+        Connection con = null;
+        final String[] columnId = {""};
+
+        Arrays.stream(obj.getClass().getDeclaredFields()).forEach(item -> {
+            if(item.getAnnotation(Id.class) != null){
+                if(item.getAnnotation(Id.class).identificador().equals(""))
+                    columnId[0] = item.getName();
+                else
+                    columnId[0] = item.getAnnotation(Id.class).identificador();
+                return;
+            }
+        });
+
+        con = connectionDatabase.openConnection();
+
+        try{
+
+            if(columnId[0].isEmpty())
+                this.operationPercistence(obj,con,0);
+            else
+                this.operationPercistence(obj,con,1);
+
+            con.commit();
+
+        } catch (SQLException ex){
+            new Throwable("Não foi possível fazer a inserção");
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void operationPercistence(Object obj, Connection con, int type) throws IllegalAccessException, SQLException {
+
+        int id = 0;
+        ResultSet rs = null;
+
+
+        PreparedStatement stmt = contructorCommand(obj,con,0);
+        stmt.execute();
+        rs = stmt.getGeneratedKeys();
+        while (rs.next()) {
+            id = rs.getInt(1);
+        }
+
+
+        String colunaId = "";
+        Boolean recurse = true;
+
+        while(recurse){
+
+            Field[] fields = obj.getClass().getDeclaredFields();
+            for(Field fi : fields){
+
+                if(fi.getAnnotation(Id.class) != null){//#1
+                    if(fi.getAnnotation(Id.class).identificador().equals(""))
+                        colunaId = fi.getName();
+                    else
+                        colunaId = fi.getAnnotation(Id.class).identificador();
+                }
+
+                if(fi.getAnnotation(SimpleObject.class) != null){//#2
+
+                    fi.setAccessible(true);
+
+                    Object classObjFilho = fi.get(obj);
+
+                    if(classObjFilho != null){
+
+                        Field[] objFields = classObjFilho.getClass().getDeclaredFields();
+
+                        for(Field objField : objFields){
+
+                            if(objField.getAnnotation(Fk.class) != null && objField.getAnnotation(Fk.class).value().equals(colunaId)) {//#3
+                                objField.setAccessible(true);
+                                objField.set(classObjFilho,id);
+                            }
+                        }
+
+                        this.operationPercistence(classObjFilho,con,type);
+                    }
+                }
+                if(fi.getAnnotation(ListObject.class) != null){
+
+                    fi.setAccessible(true);
+                    List<?> classListObjFilho = (List<?>) fi.get(obj);
+
+                    if(classListObjFilho != null){
+
+                        for(Object classObjFilho : classListObjFilho){
+                            Field[] objFields = classObjFilho.getClass().getDeclaredFields();
+
+                            for(Field objField : objFields){
+
+                                if(objField.getAnnotation(Fk.class) != null && objField.getAnnotation(Fk.class).value().equals(colunaId)) {//#3
+                                    objField.setAccessible(true);
+                                    objField.set(classObjFilho,id);
+                                }
+                            }
+
+                            this.operationPercistence(classObjFilho,con,type);
+                        }
+                    }
+                }
+            }
+            recurse = false;
+        }
+        // return id;
     }
 
     @Override
