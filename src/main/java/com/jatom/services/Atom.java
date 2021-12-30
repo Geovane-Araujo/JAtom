@@ -324,9 +324,9 @@ public class Atom implements JAtomRepository {
             con.commit();
 
         } catch (SQLException ex){
-            new Throwable("Não foi possível fazer a inserção");
+            new Throwable("Não foi possível fazer a inserção" + ex.getMessage());
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            new Throwable("Não foi possível fazer a inserção" + e.getMessage());
         }
     }
 
