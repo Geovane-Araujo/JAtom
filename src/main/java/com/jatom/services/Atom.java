@@ -304,8 +304,6 @@ public class Atom implements JAtomRepository {
 
         Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
 
-
-
         try{
 
             if(fieldIdentifier != null){
@@ -323,49 +321,58 @@ public class Atom implements JAtomRepository {
 
             con = connectionDatabase.openConnection();
             con.setAutoCommit(false);
-
-            if(columnId.isEmpty())
+            fieldIdentifier.setAccessible(true);
+            if(fieldIdentifier.get(obj) == null || fieldIdentifier.get(obj).equals("") || fieldIdentifier.get(obj).toString().equals("0"))
                 this.operationPercistence(obj,con,0);
             else
                 this.operationPercistence(obj,con,1);
 
             con.commit();
 
-        } catch (SQLException ex){
-            System.err.println("Não foi possível fazer a inserção" + ex.getMessage());
+        } catch (SQLException | IllegalAccessException ex){
+            System.err.println("FATAL ERROR: " + ex.getMessage());
             try {
                 con.rollback();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (IllegalAccessException  e) {
-            System.err.println("Não foi possível fazer a inserção" + e.getMessage());
         } finally {
-
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void save(Object obj, String db)  {
 
+
         Connection con = null;
-        final String[] columnId = {""};
+        String columnId = "";
 
-        Arrays.stream(obj.getClass().getDeclaredFields()).forEach(item -> {
-            if(item.getAnnotation(Id.class) != null){
-                if(item.getAnnotation(Id.class).identificador().equals(""))
-                    columnId[0] = item.getName();
-                else
-                    columnId[0] = item.getAnnotation(Id.class).identificador();
-                return;
-            }
-        });
-
-        con = connectionDatabase.openConnection(db);
+        Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
 
         try{
+
+            if(fieldIdentifier != null){
+                if(fieldIdentifier.getAnnotation(Id.class) != null){
+                    if(fieldIdentifier.getAnnotation(Id.class).identificador().equals(""))
+                        columnId = fieldIdentifier.getName();
+                    else
+                        columnId = fieldIdentifier.getAnnotation(Id.class).identificador();
+                }
+            }
+            else{
+                System.err.println("Campo identificador vazio");
+                return;
+            }
+
+            con = connectionDatabase.openConnection(db);
             con.setAutoCommit(false);
-            if(columnId[0].isEmpty())
+            fieldIdentifier.setAccessible(true);
+            if(fieldIdentifier.get(obj) == null || fieldIdentifier.get(obj).equals("") || fieldIdentifier.get(obj).toString().equals("0"))
                 this.operationPercistence(obj,con,0);
             else
                 this.operationPercistence(obj,con,1);
