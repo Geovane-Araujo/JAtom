@@ -3,12 +3,12 @@ package com.jatom.services;
 import com.google.gson.Gson;
 import com.jatom.ConnectionDatabase;
 import com.jatom.anotations.*;
+import com.jatom.exceptions.JExeption;
 import com.jatom.repository.JAtomRepository;
 
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Atom implements JAtomRepository {
 
@@ -300,6 +300,55 @@ public class Atom implements JAtomRepository {
     public void save(Object obj) {
 
         Connection con = null;
+        String columnId = "";
+
+        Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
+
+
+
+        try{
+
+            if(fieldIdentifier != null){
+                if(fieldIdentifier.getAnnotation(Id.class) != null){
+                    if(fieldIdentifier.getAnnotation(Id.class).identificador().equals(""))
+                        columnId = fieldIdentifier.getName();
+                    else
+                        columnId = fieldIdentifier.getAnnotation(Id.class).identificador();
+                }
+            }
+            else{
+                System.err.println("Campo identificador vazio");
+                return;
+            }
+
+            con = connectionDatabase.openConnection();
+            con.setAutoCommit(false);
+
+            if(columnId.isEmpty())
+                this.operationPercistence(obj,con,0);
+            else
+                this.operationPercistence(obj,con,1);
+
+            con.commit();
+
+        } catch (SQLException ex){
+            System.err.println("Não foi possível fazer a inserção" + ex.getMessage());
+            try {
+                con.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (IllegalAccessException  e) {
+            System.err.println("Não foi possível fazer a inserção" + e.getMessage());
+        } finally {
+
+        }
+    }
+
+    @Override
+    public void save(Object obj, String db)  {
+
+        Connection con = null;
         final String[] columnId = {""};
 
         Arrays.stream(obj.getClass().getDeclaredFields()).forEach(item -> {
@@ -312,10 +361,10 @@ public class Atom implements JAtomRepository {
             }
         });
 
-        con = connectionDatabase.openConnection();
+        con = connectionDatabase.openConnection(db);
 
         try{
-
+            con.setAutoCommit(false);
             if(columnId[0].isEmpty())
                 this.operationPercistence(obj,con,0);
             else
@@ -324,6 +373,11 @@ public class Atom implements JAtomRepository {
             con.commit();
 
         } catch (SQLException ex){
+            try {
+                con.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             new Throwable("Não foi possível fazer a inserção" + ex.getMessage());
         } catch (IllegalAccessException e) {
             new Throwable("Não foi possível fazer a inserção" + e.getMessage());

@@ -29,9 +29,9 @@ public class ConnectionDatabase {
                 return DriverManager.getConnection(url);
 
         } catch (SQLException ex){
-            new Throwable("Não foi possível conectar a base de dados");
+            System.err.println("Não foi possível conectar a base de dados: " + ex.getMessage());
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            System.err.println("Não foi possível encontrar a classe de conexão: " + e.getMessage());
         }
         return null;
     }
@@ -61,7 +61,7 @@ public class ConnectionDatabase {
             PropertiesConfiguration config = new PropertiesConfiguration();
             config.load("application.properties");
 
-            drive = config.getString("org.postgresql.Driver",null);
+            drive = config.getString("org.connection.jatom.driver",null);
             url = config.getString("org.connection.jatom.url",null);
             password = config.getString("org.connection.jatom.password",null);
             user = config.getString("org.connection.jatom.user",null);
