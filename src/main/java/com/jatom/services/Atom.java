@@ -3,6 +3,8 @@ package com.jatom.services;
 import com.google.gson.Gson;
 import com.jatom.ConnectionDatabase;
 import com.jatom.anotations.*;
+import com.jatom.enuns.JAtomTypes;
+import com.jatom.model.JAtomParameters;
 import com.jatom.repository.JAtomRepository;
 
 import java.lang.reflect.Field;
@@ -363,6 +365,10 @@ public class Atom implements JAtomRepository {
     }
 
     @Override
+    public <T> T get(JAtomParameters jAtomParameters) {
+        return null;
+    }
+
     public void operationPercistence(Object obj, Connection con, int type) throws IllegalAccessException, SQLException {
 
         Object id = 0;
@@ -463,16 +469,6 @@ public class Atom implements JAtomRepository {
             }
             recurse = false;
         }
-    }
-
-    @Override
-    public List<Object> getAll(String sql) {
-        return null;
-    }
-
-    @Override
-    public Object get(String sql) {
-        return null;
     }
 
     private static PreparedStatement contructorCommand(Object clazz, Connection con, int type) throws SQLException, IllegalAccessException {

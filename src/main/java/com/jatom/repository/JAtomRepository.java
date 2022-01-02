@@ -1,8 +1,12 @@
 package com.jatom.repository;
 
+import com.jatom.enuns.Orders;
+import com.jatom.model.JAtomParameters;
+
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public interface JAtomRepository {
@@ -127,11 +131,5 @@ public interface JAtomRepository {
      */
     void save(Object obj, String db) throws SQLException;
 
-    public void operationPercistence(Object obj, Connection con, int type) throws IllegalAccessException, SQLException;
-
-    public List<Object> getAll(String sql);
-
-    public Object get(String sql);
-
-
+    <T extends Object> T get(JAtomParameters jAtomParameters);
 }
