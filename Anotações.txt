@@ -1,0 +1,8 @@
+Conectar ao sql server jdbc
+https://docs.microsoft.com/pt-br/sql/connect/jdbc/working-with-a-connection?view=sql-server-ver15
+
+Conectar ao mysql
+https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-usagenotes-connect-drivermanager.html
+
+sqlite
+https://www.tutorialspoint.com/sqlite/sqlite_java.htm
