@@ -47,9 +47,9 @@ public class ConnectionDatabase {
                 return DriverManager.getConnection(url);
 
         } catch (SQLException ex){
-            new Throwable("Não foi possível conectar a base de dados" + ex.getMessage());
+            System.err.println("Não foi possível conectar a base de dados" + ex.getMessage());
         } catch (ClassNotFoundException e) {
-            new Throwable("Class NotFound" + e.getMessage());
+            System.err.println("Class NotFound" + e.getMessage());
         }
         return null;
     }
@@ -67,7 +67,7 @@ public class ConnectionDatabase {
             user = config.getString("org.connection.jatom.user",null);
 
         } catch (ConfigurationException ex){
-            new Throwable("Could not read as file properties" + ex.getMessage());
+            System.err.println("Could not read as file properties" + ex.getMessage());
         }
 
 

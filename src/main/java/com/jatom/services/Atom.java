@@ -356,9 +356,9 @@ public class Atom implements JAtomRepository {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            new Throwable("Não foi possível fazer a inserção" + ex.getMessage());
+            System.err.println("Não foi possível fazer a inserção" + ex.getMessage());
         } catch (IllegalAccessException e) {
-            new Throwable("Não foi possível fazer a inserção" + e.getMessage());
+            System.err.println("Não foi possível fazer a inserção" + e.getMessage());
         }
     }
 
@@ -368,11 +368,14 @@ public class Atom implements JAtomRepository {
         Object id = 0;
         ResultSet rs = null;
         Field aux = null;
-
-        aux = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
-        aux.setAccessible(true);
+        boolean noEntity = false;
 
         if(obj.getClass().getAnnotation(NoEntity.class) == null){
+
+            // coloca o id no objeto para ter como retorno
+            aux = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
+            aux.setAccessible(true);
+
             PreparedStatement stmt = contructorCommand(obj,con,0);
             stmt.execute();
             rs = stmt.getGeneratedKeys();
@@ -381,10 +384,14 @@ public class Atom implements JAtomRepository {
             }
             aux.set(obj,id);
         } else{
+            // pega o ID na variavel de FK quando for noEntity
+            aux = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Fk.class) != null).findFirst().orElse(null);
+            aux.setAccessible(true);
 
             if(aux != null){
                 id = aux.get(obj);
             }
+            noEntity = true;
         }
 
         String colunaId = "";
@@ -395,12 +402,22 @@ public class Atom implements JAtomRepository {
             Field[] fields = obj.getClass().getDeclaredFields();
             for(Field fi : fields){
 
-                if(fi.getAnnotation(Id.class) != null){//#1
-                    if(fi.getAnnotation(Id.class).value().equals(""))
-                        colunaId = fi.getName();
-                    else
-                        colunaId = fi.getAnnotation(Id.class).value();
+                if(!noEntity) {
+                    if(fi.getAnnotation(Id.class) != null){//#1
+                        if(fi.getAnnotation(Id.class).value().equals(""))
+                            colunaId = fi.getName();
+                        else
+                            colunaId = fi.getAnnotation(Id.class).value();
+                    }
+                } else {
+                    if(fi.getAnnotation(Fk.class) != null){//#1
+                        if(fi.getAnnotation(Fk.class).value().equals(""))
+                            colunaId = fi.getName();
+                        else
+                            colunaId = fi.getAnnotation(Fk.class).value();
+                    }
                 }
+
 
                 if(fi.getAnnotation(SimpleObject.class) != null){//#2
 
@@ -420,7 +437,6 @@ public class Atom implements JAtomRepository {
                         }
 
                         this.operationPercistence(classObjFilho,con,type);
-                        String teste = "";
                     }
                 }
                 if(fi.getAnnotation(ListObject.class) != null){
@@ -441,14 +457,12 @@ public class Atom implements JAtomRepository {
                             }
 
                             this.operationPercistence(classObjFilho,con,type);
-                            String teste = "";
                         }
                     }
                 }
             }
             recurse = false;
         }
-        // return id;
     }
 
     @Override
@@ -540,6 +554,5 @@ public class Atom implements JAtomRepository {
 
         return stmt;
     }
-
 
 }
