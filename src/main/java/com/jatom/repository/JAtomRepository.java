@@ -105,18 +105,27 @@ public interface JAtomRepository {
     /**
      * Método que possíbilita executar comandos sql
      *
-     * @param sql Código sql a ser executado
-     * @throws SQLException
-     */
-    public void executeQuery(String sql) throws SQLException, IllegalAccessException;
-    /**
-     * Método que possíbilita executar comandos sql
-     *
      * @param con Conexão Aberta
      * @param sql Código sql a ser executado
      * @throws SQLException
      */
     public void executeQuery(Connection con, String sql) throws SQLException, IllegalAccessException;
+
+    /**
+     * Método que possíbilita executar comandos sql
+     *
+     * @param sql Código sql a ser executado
+     * @throws SQLException
+     */
+    public void executeQuery(String sql);
+
+    /**
+     * Método que possíbilita executar comandos sql
+     *
+     * @param sql Código sql a ser executado
+     * @param db Banco de dados a ser executado
+     */
+    public void executeQuery(String sql, String db);
 
     /**
      * Método responsável por salvar um objeto

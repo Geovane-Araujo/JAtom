@@ -284,17 +284,60 @@ public class Atom implements JAtomRepository {
     }
 
     @Override
-    public void executeQuery(String sql) throws SQLException, IllegalAccessException {
-
-    }
-
-    @Override
     @Deprecated
     public void executeQuery(Connection con, String sql) throws SQLException {
         PreparedStatement stmt = null;
         stmt = con.prepareStatement(sql);
         stmt.execute();
         stmt.close();
+    }
+
+    //-------------------------------NEW IMPLEMENTATIONS---------------------------------------
+
+    @Override
+    public void executeQuery(String sql) {
+        Connection con = null;
+
+        try {
+
+            con = connectionDatabase.openConnection();
+            PreparedStatement stmt = null;
+            stmt = con.prepareStatement(sql);
+            stmt.execute();
+            stmt.close();
+
+        } catch (SQLException e) {
+            System.err.println("Não foi possível conectar a base de dados: " + e.getMessage());
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void executeQuery(String sql, String db) {
+        Connection con = null;
+
+        try {
+
+            con = connectionDatabase.openConnection(db);
+            PreparedStatement stmt = null;
+            stmt = con.prepareStatement(sql);
+            stmt.execute();
+            stmt.close();
+
+        } catch (SQLException e) {
+            System.err.println("ERROR: " + e.getMessage());
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
