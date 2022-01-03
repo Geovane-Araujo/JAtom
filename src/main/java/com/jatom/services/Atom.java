@@ -408,16 +408,26 @@ public class Atom extends GlobalVariables implements JAtomRepository {
     @Override
     public <T> T get(JAtomParameters jAtomParameters) {
 
-        String sql = "";
 
         Connection con = null;
+        // palavras reservadas
 
+        String columns = (String)(jAtomParameters.get(JAtomTypes.COLUMNS) == null ? "*" : jAtomParameters.get(JAtomTypes.COLUMNS).toString());
+        Class clazz = (Class)(jAtomParameters.get(JAtomTypes.CLASS) == null ? Object.class : jAtomParameters.get(JAtomTypes.CLASS));
+        String sql = (String)(jAtomParameters.get(JAtomTypes.SQL) == null ? null: jAtomParameters.get(JAtomTypes.SQL)).toString();
         try{
             con = connectionDatabase.openConnection();
-            if(!jAtomParameters.get(JAtomTypes.SQL).equals("")){
-                sql = jAtomParameters.get(JAtomTypes.SQL).toString();
-                return (T)execute(con,sql,(Class)(jAtomParameters.get(JAtomTypes.CLASS) == null ? Object.class : jAtomParameters.get(JAtomTypes.CLASS)));
+
+            // retorno da Sql Nativa
+            if(sql != null){
+                return (T)execute(con,sql,clazz);
+
+            } else if(columns != null && !clazz.getName().equals("Object")){
+                if(columns.indexOf("*") == -1){
+
+                }
             }
+
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -613,7 +623,6 @@ public class Atom extends GlobalVariables implements JAtomRepository {
 
         return stmt;
     }
-
 
     private <T> T execute(Connection con,String sql, Class clazz) throws SQLException {
 

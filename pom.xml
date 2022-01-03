@@ -6,7 +6,7 @@
 
     <groupId>org.atom</groupId>
     <artifactId>atom-framework</artifactId>
-    <version>2.2</version>
+    <version>3.0</version>
     <build>
         <plugins>
             <plugin>
