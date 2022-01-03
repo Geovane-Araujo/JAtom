@@ -6,5 +6,6 @@ public enum JAtomTypes {
     WHERE_LIKE,
     ORDER,
     COLUMNS,
-    DB_NAME
+    DB_NAME,
+    CLASS,
 }

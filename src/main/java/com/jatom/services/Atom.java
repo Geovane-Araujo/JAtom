@@ -1,21 +1,19 @@
 package com.jatom.services;
 
 import com.google.gson.Gson;
-import com.jatom.ConnectionDatabase;
 import com.jatom.anotations.*;
 import com.jatom.enuns.JAtomTypes;
+import com.jatom.model.GlobalVariables;
 import com.jatom.model.JAtomParameters;
+import com.jatom.model.JAtomResults;
 import com.jatom.repository.JAtomRepository;
 
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class Atom implements JAtomRepository {
-
-    Connection con = null;
-
-    ConnectionDatabase connectionDatabase = new ConnectionDatabase();
+public class Atom extends GlobalVariables implements JAtomRepository {
 
     @Override
     @Deprecated
@@ -409,10 +407,32 @@ public class Atom implements JAtomRepository {
 
     @Override
     public <T> T get(JAtomParameters jAtomParameters) {
+
+        String sql = "";
+
+        Connection con = null;
+
+        try{
+            con = connectionDatabase.openConnection();
+            if(!jAtomParameters.get(JAtomTypes.SQL).equals("")){
+                sql = jAtomParameters.get(JAtomTypes.SQL).toString();
+                return (T)execute(con,sql,(Class)(jAtomParameters.get(JAtomTypes.CLASS) == null ? Object.class : jAtomParameters.get(JAtomTypes.CLASS)));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
         return null;
     }
 
-    public void operationPercistence(Object obj, Connection con, int type) throws IllegalAccessException, SQLException {
+    private void operationPercistence(Object obj, Connection con, int type) throws IllegalAccessException, SQLException {
 
         Object id = 0;
         ResultSet rs = null;
@@ -425,7 +445,7 @@ public class Atom implements JAtomRepository {
             aux = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
             aux.setAccessible(true);
 
-            PreparedStatement stmt = contructorCommand(obj,con,0);
+            PreparedStatement stmt = contructorCommand(obj,con,type);
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()) {
@@ -592,6 +612,45 @@ public class Atom implements JAtomRepository {
         }
 
         return stmt;
+    }
+
+
+    private <T> T execute(Connection con,String sql, Class clazz) throws SQLException {
+
+        List<Object> results = new ArrayList<>();
+        List<String> columns = new ArrayList<>();
+
+        stmt = con.prepareStatement(sql);
+        rs = stmt.executeQuery();
+
+        ResultSetMetaData rsm = rs.getMetaData();
+        String col = "";
+
+        for(int i = 1;i <= rsm.getColumnCount();i++){
+            col = rsm.getColumnName(i);
+            columns.add(col);
+        }
+        JAtomResults obj = null;
+        while (rs.next()){
+            obj = new JAtomResults();
+            for(int i = 0; i < columns.size();i++){
+                obj.put(columns.get(i),rs.getObject(columns.get(i)));
+            }
+
+            if(clazz != null){
+                results.add(gson.fromJson(gson.toJson(obj),clazz));
+            } else {
+                results.add(gson.fromJson(gson.toJson(obj),Object.class));
+            }
+        }
+
+        if(results.size() > 1)
+            return (T)results;
+        else if(results.size() == 1)
+            return (T)results.get(0);
+        else
+            return null;
+
     }
 
 }
