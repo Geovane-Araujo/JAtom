@@ -8,7 +8,9 @@ import com.jatom.model.JAtomParameters;
 import com.jatom.model.JAtomResults;
 import com.jatom.repository.JAtomRepository;
 
+import java.io.InvalidClassException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -422,10 +424,8 @@ public class Atom extends GlobalVariables implements JAtomRepository {
             if(sql != null){
                 return (T)execute(con,sql,clazz);
 
-            } else if(columns != null && !clazz.getName().equals("Object")){
-                if(columns.indexOf("*") == -1){
+            } else if(!clazz.getName().equals("Object")){
 
-                }
             }
 
 
@@ -441,6 +441,55 @@ public class Atom extends GlobalVariables implements JAtomRepository {
 
         return null;
     }
+
+    @Override
+    public <T> T getByID(Class clazz, Object id) {
+
+        String columnId =  "";
+        Object obj = null;
+        try{
+            obj= clazz.getDeclaredConstructor().newInstance();
+            con = connectionDatabase.openConnection();
+
+            Field fieldpai = Arrays.stream(clazz.getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
+            if(fieldpai != null){
+                columnId =  fieldpai.getName();
+            } else
+                return null;
+
+            String sql = constructQuery(clazz,columnId, id);
+
+            obj = execute(con,sql,clazz);
+
+            operationGet(con,obj,id);
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return (T)obj;
+    }
+
+    @Override
+    public <T> T getByID(Class clazz, Object id, String db) {
+        return null;
+    }
+
+
 
     private void operationPercistence(Object obj, Connection con, int type) throws IllegalAccessException, SQLException {
 
@@ -624,10 +673,58 @@ public class Atom extends GlobalVariables implements JAtomRepository {
         return stmt;
     }
 
+    private <T> T operationGet(Connection con, Object obj, Object valueId){
+
+        boolean recursive = true;
+        String sql = "";
+
+        Field fieldId = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
+        String entityIdName = (fieldId.getAnnotation(Id.class).value().equals("") ? fieldId.getName() : fieldId.getAnnotation(Id.class).value());
+
+
+        try {
+            while (recursive){
+
+                Field[] fieldsPai = obj.getClass().getDeclaredFields();
+
+                for (Field field: fieldsPai) {
+                    field.setAccessible(true);
+                    if(field.getAnnotation(SimpleObject.class) != null){
+
+                        Field fkReference = Arrays.stream(field.get(obj).getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Fk.class) != null && item.getAnnotation(Fk.class).value().equals(entityIdName)).findFirst().orElse(null);
+
+                        sql = constructQuery(field.get(obj).getClass(),fkReference.getName(),valueId);
+                        Object value = execute(con,sql,field.get(obj).getClass());
+
+                        fkReference = Arrays.stream(value.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
+
+                        fkReference.setAccessible(true);
+                        valueId = fkReference.get(value);
+
+                        operationGet(con,value,valueId);
+                        field.set(obj,value);
+                    }
+                    else if(field.getAnnotation(ListObject.class) != null){
+
+                    }
+                }
+                recursive = false;
+            }
+        }catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return (T)obj;
+    }
+
+
     private <T> T execute(Connection con,String sql, Class clazz) throws SQLException {
 
         List<Object> results = new ArrayList<>();
         List<String> columns = new ArrayList<>();
+
 
         stmt = con.prepareStatement(sql);
         rs = stmt.executeQuery();
@@ -660,6 +757,30 @@ public class Atom extends GlobalVariables implements JAtomRepository {
         else
             return null;
 
+    }
+
+    private String constructQuery(Class clazz,String coumnId, Object valueId){
+
+        String sql = "";
+        try{
+
+            Object ob = clazz.getDeclaredConstructor().newInstance();
+            String tablename = (clazz.getAnnotation(TableName.class) == null ? clazz.getSimpleName() : ob.getClass().getAnnotation(TableName.class).value());
+
+            sql = "SELECT * FROM "+ tablename + " WHERE " + coumnId + " = '" + valueId +"'";
+
+        }catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+
+
+        return sql;
     }
 
 }

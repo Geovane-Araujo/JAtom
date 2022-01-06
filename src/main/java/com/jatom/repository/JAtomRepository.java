@@ -141,4 +141,9 @@ public interface JAtomRepository {
     void save(Object obj, String db) throws SQLException;
 
     <T extends Object> T get(JAtomParameters jAtomParameters);
+
+    <T extends Object> T getByID(Class clazz, Object id);
+
+    <T extends Object> T getByID(Class clazz, Object id, String db);
+
 }
