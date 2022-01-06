@@ -461,7 +461,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
 
             obj = execute(con,sql,clazz);
 
-            operationGet(con,obj,id);
+            operationGet(con,obj);
 
 
         } catch (SQLException e) {
@@ -673,16 +673,19 @@ public class Atom extends GlobalVariables implements JAtomRepository {
         return stmt;
     }
 
-    private <T> T operationGet(Connection con, Object obj, Object valueId){
+    private <T> T operationGet(Connection con, Object obj){
 
         boolean recursive = true;
         String sql = "";
 
         Field fieldId = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
         String entityIdName = (fieldId.getAnnotation(Id.class).value().equals("") ? fieldId.getName() : fieldId.getAnnotation(Id.class).value());
+        fieldId.setAccessible(true);
 
 
         try {
+            Object valueId = fieldId.get(obj);
+
             while (recursive){
 
                 Field[] fieldsPai = obj.getClass().getDeclaredFields();
@@ -696,16 +699,21 @@ public class Atom extends GlobalVariables implements JAtomRepository {
                         sql = constructQuery(field.get(obj).getClass(),fkReference.getName(),valueId);
                         Object value = execute(con,sql,field.get(obj).getClass());
 
-                        fkReference = Arrays.stream(value.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
-
-                        fkReference.setAccessible(true);
-                        valueId = fkReference.get(value);
-
-                        operationGet(con,value,valueId);
+                        operationGet(con,value);
                         field.set(obj,value);
                     }
                     else if(field.getAnnotation(ListObject.class) != null){
 
+                        List<?> classListObjFilho = (List<?>) field.get(obj);
+
+                        Field fkReference = Arrays.stream(field.get(obj).getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Fk.class) != null && item.getAnnotation(Fk.class).value().equals(entityIdName)).findFirst().orElse(null);
+
+                        sql = constructQuery(field.get(obj).getClass(),fkReference.getName(),valueId);
+
+                        Object value = execute(con,sql,field.get(obj).getClass());
+
+                        operationGet(con,value);
+                        field.set(obj,value);
                     }
                 }
                 recursive = false;
