@@ -7,13 +7,14 @@ import com.jatom.model.GlobalVariables;
 import com.jatom.model.JAtomParameters;
 import com.jatom.model.JAtomResults;
 import com.jatom.repository.JAtomRepository;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
-import java.io.InvalidClassException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.sql.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Atom extends GlobalVariables implements JAtomRepository {
 
@@ -706,13 +707,17 @@ public class Atom extends GlobalVariables implements JAtomRepository {
 
                         List<?> classListObjFilho = (List<?>) field.get(obj);
 
-                        Field fkReference = Arrays.stream(field.get(obj).getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Fk.class) != null && item.getAnnotation(Fk.class).value().equals(entityIdName)).findFirst().orElse(null);
+                        Type fi = ((ParameterizedTypeImpl) field.getGenericType()).getActualTypeArguments()[0];
+                        Field fkReference = Arrays.stream(((Class) fi).getDeclaredFields()).filter(item -> item.getAnnotation(Fk.class) != null && item.getAnnotation(Fk.class).value().equals(entityIdName)).findFirst().orElse(null);
 
-                        sql = constructQuery(field.get(obj).getClass(),fkReference.getName(),valueId);
+                        sql = constructQuery(((Class) fi),fkReference.getName(),valueId);
 
-                        Object value = execute(con,sql,field.get(obj).getClass());
+                        Object value = execute(con,sql,((Class) fi));
 
-                        operationGet(con,value);
+                        for (T a :(List<T>) value) {
+                            operationGet(con,a);
+                        }
+
                         field.set(obj,value);
                     }
                 }
