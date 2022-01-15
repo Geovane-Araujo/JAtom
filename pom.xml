@@ -46,8 +46,13 @@
             <artifactId>json</artifactId>
             <version>20201115</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.demidenko05</groupId>
+            <artifactId>a-javabeans</artifactId>
+            <version>1.0.4</version>
+        </dependency>
     </dependencies>
-    <name>pain-crud</name>
+    <name>atom-framework</name>
     <description>A demo for deployment to the Central Repository via OSSRH</description>
 
 </project>
