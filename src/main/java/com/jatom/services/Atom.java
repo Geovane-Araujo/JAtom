@@ -780,6 +780,10 @@ public class Atom extends GlobalVariables implements JAtomRepository {
             Object ob = clazz.getDeclaredConstructor().newInstance();
             String tablename = (clazz.getAnnotation(TableName.class) == null ? clazz.getSimpleName() : ob.getClass().getAnnotation(TableName.class).value());
 
+            if(clazz.getAnnotation(Join.class) != null){
+
+            }
+
             sql = "SELECT * FROM "+ tablename + " WHERE " + coumnId + " = '" + valueId +"'";
 
         }catch (InvocationTargetException e) {
@@ -792,8 +796,13 @@ public class Atom extends GlobalVariables implements JAtomRepository {
             e.printStackTrace();
         }
 
-
         return sql;
+    }
+
+    private String onJoin(Class clazz,String tableName){
+
+
+        return null;
     }
 
 }

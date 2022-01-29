@@ -5,13 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- *  Anotação Responsável por fornecer o nome da chave estrangeira do banco de Dados
- *
- */
-
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Fk {
-    String value();
+public @interface Join {
+    String tables();
+    String references();
+    String fk();
+    String as();
 }
