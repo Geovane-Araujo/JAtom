@@ -17,7 +17,8 @@ import java.lang.annotation.Target;
  *
  */
 
-@Target(ElementType.TYPE)
+@Deprecated
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Alias {
     public String value();

@@ -780,7 +780,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
             Object ob = clazz.getDeclaredConstructor().newInstance();
             String tablename = (clazz.getAnnotation(TableName.class) == null ? clazz.getSimpleName() : ob.getClass().getAnnotation(TableName.class).value());
 
-            if(clazz.getAnnotation(Join.class) != null){
+            if(clazz.getAnnotation(Union.class) != null){
 
             }
 
