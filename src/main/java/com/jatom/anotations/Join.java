@@ -1,8 +1,5 @@
 package com.jatom.anotations;
 
-import com.sun.tools.javac.code.Attribute;
-import org.apache.commons.lang.ObjectUtils;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

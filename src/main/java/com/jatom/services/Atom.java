@@ -10,11 +10,13 @@ import com.jatom.repository.JAtomRepository;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Atom extends GlobalVariables implements JAtomRepository {
 
@@ -774,17 +776,14 @@ public class Atom extends GlobalVariables implements JAtomRepository {
 
     private String constructQuery(Class clazz,String coumnId, Object valueId){
 
-        String sql = "";
+        String sqlJoins = "";
         try{
 
             Object ob = clazz.getDeclaredConstructor().newInstance();
             String tablename = (clazz.getAnnotation(TableName.class) == null ? clazz.getSimpleName() : ob.getClass().getAnnotation(TableName.class).value());
 
-            if(clazz.getAnnotation(Union.class) != null){
+            sqlJoins = onJoin(ob.getClass(),tablename, coumnId, valueId);
 
-            }
-
-            sql = "SELECT * FROM "+ tablename + " WHERE " + coumnId + " = '" + valueId +"'";
 
         }catch (InvocationTargetException e) {
             e.printStackTrace();
@@ -796,13 +795,55 @@ public class Atom extends GlobalVariables implements JAtomRepository {
             e.printStackTrace();
         }
 
+        return sqlJoins;
+    }
+
+    private String onJoin(Class clazz,String tableName, String coumnId,Object valueId) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+
+        String join = "";
+        String tableUnion = "";
+        String sql = "";
+        String col = "";
+
+
+        List<Field> fields = Arrays.stream(clazz.getDeclaredFields()).filter(obj -> obj.getAnnotation(Join.class) != null).collect(Collectors.toList());
+
+        for (Field f: fields) {
+
+            Object c = f.getAnnotation(Join.class).reference().getDeclaredConstructor().newInstance();
+
+            if(c.getClass().getAnnotation(TableName.class) == null){
+                tableUnion = c.getClass().getSimpleName();
+            } else {
+                tableUnion = c.getClass().getAnnotation(TableName.class).value();
+            }
+
+            join += " INNER JOIN  " + tableUnion + " ON " +tableName + "."+f.getAnnotation(Join.class).columnReference() + " = " + tableUnion + "."+onJoinId(c.getClass()) + " \n";
+
+
+            col += ", " + tableUnion + "." + f.getAnnotation(Join.class).columnName() + " as " + f.getName();
+
+        }
+
+        if(!col.equals(""))
+            sql = "SELECT "+ tableName + ".* "+col+" FROM "+ tableName + join +" WHERE "+tableName+ "." + coumnId + " = '" + valueId +"'";
+        else
+            sql = "SELECT "+ tableName + ".* FROM "+ tableName + " WHERE " + coumnId + " = '" + valueId +"'";
         return sql;
     }
 
-    private String onJoin(Class clazz,String tableName){
+    private String onJoinId(Class c){
 
+        String idName = "";
 
-        return null;
+        Field f = Arrays.stream(c.getDeclaredFields()).filter(obj -> obj.getAnnotation(Id.class) != null).findFirst().orElse(null);
+
+        if(!f.getAnnotation(Id.class).value().equals(""))
+            idName = f.getAnnotation(Id.class).value();
+        else
+            idName = f.getName();
+
+        return idName;
     }
 
 }
