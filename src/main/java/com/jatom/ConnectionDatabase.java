@@ -54,7 +54,6 @@ public class ConnectionDatabase {
         return null;
     }
 
-
     private void load()  {
 
         try{
