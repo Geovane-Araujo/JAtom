@@ -117,7 +117,7 @@ public interface JAtomRepository {
      * @param sql Código sql a ser executado
      * @throws SQLException
      */
-    public void executeQuery(String sql);
+    public void executeQuery(String sql) throws Exception;
 
     /**
      * Método que possíbilita executar comandos sql
@@ -125,24 +125,23 @@ public interface JAtomRepository {
      * @param sql Código sql a ser executado
      * @param db Banco de dados a ser executado
      */
-    public void executeQuery(String sql, String db);
+    public void executeQuery(String sql, String db) throws Exception;
 
     /**
      * Método responsável por salvar um objeto
      * @param obj
      */
-    public void save(Object obj);
+    public void save(Object obj) throws Exception;
 
     /**
      *  @param obj
      * @param db
-     * @return
      */
-    boolean save(Object obj, String db) throws Exception;
+    void save(Object obj, String db) throws Exception;
 
-    <T extends Object> T get(JAtomParameters jAtomParameters);
+    <T extends Object> T get(JAtomParameters jAtomParameters) throws Exception;
 
-    <T extends Object> T getByID(Class clazz, Object id);
+    <T extends Object> T getByID(Class clazz, Object id) throws Exception;
 
     <T extends Object> T getByID(Class clazz, Object id, String db);
 

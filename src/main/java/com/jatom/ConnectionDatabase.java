@@ -16,9 +16,7 @@ public class ConnectionDatabase {
     private String user = "";
 
 
-
-
-    public Connection openConnection(){
+    public Connection openConnection() throws Exception {
 
         this.load();
         try{
@@ -36,7 +34,7 @@ public class ConnectionDatabase {
         return null;
     }
 
-    public Connection openConnection(String db){
+    public Connection openConnection(String db) throws Exception {
 
         this.load();
         try{
@@ -47,14 +45,14 @@ public class ConnectionDatabase {
                 return DriverManager.getConnection(url);
 
         } catch (SQLException ex){
-            System.err.println("Não foi possível conectar a base de dados" + ex.getMessage());
+            throw  new Exception("Não foi possível conectar a base de dados " + ex.getMessage());
         } catch (ClassNotFoundException e) {
             System.err.println("Class NotFound" + e.getMessage());
         }
         return null;
     }
 
-    private void load()  {
+    private void load() throws Exception {
 
         try{
             PropertiesConfiguration config = new PropertiesConfiguration();
@@ -66,7 +64,7 @@ public class ConnectionDatabase {
             user = config.getString("org.connection.jatom.user",null);
 
         } catch (ConfigurationException ex){
-            System.err.println("Could not read as file properties" + ex.getMessage());
+            throw  new Exception("Could not read as file properties " + ex.getMessage());
         }
 
 

@@ -297,7 +297,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
     //-------------------------------NEW IMPLEMENTATIONS---------------------------------------
 
     @Override
-    public void executeQuery(String sql) {
+    public void executeQuery(String sql) throws Exception {
         Connection con = null;
 
         try {
@@ -320,7 +320,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
     }
 
     @Override
-    public void executeQuery(String sql, String db) {
+    public void executeQuery(String sql, String db) throws Exception {
         Connection con = null;
 
         try {
@@ -343,7 +343,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
     }
 
     @Override
-    public void save(Object obj) {
+    public void save(Object obj) throws Exception {
 
         Connection con = null;
         String columnId = "";
@@ -379,7 +379,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
     }
 
     @Override
-    public boolean save(Object obj, String db) throws Exception {
+    public void save(Object obj, String db) throws Exception {
 
         Connection con = null;
 
@@ -396,22 +396,21 @@ public class Atom extends GlobalVariables implements JAtomRepository {
                 this.operationPercistence(obj,con,1);
 
             con.commit();
-            return true;
 
         } catch (SQLException ex){
             try {
                 con.rollback();
             } catch (SQLException e) {
-                throw  new Exception("Não foi possível fazer a inserção" + e.getMessage());
             }
-            throw  new Exception("Não foi possível fazer a inserção" + ex.getMessage());
+            throw  new Exception("Não foi possível fazer a inserção " + ex.getMessage());
+
         } catch (IllegalAccessException e) {
-            throw  new Exception("Não foi possível fazer a inserção" + e.getMessage());
+            throw  new Exception("Não foi possível fazer a inserção " + e.getMessage());
         }
     }
 
     @Override
-    public <T> T get(JAtomParameters jAtomParameters) {
+    public <T> T get(JAtomParameters jAtomParameters) throws Exception {
 
 
         Connection con = null;
@@ -433,7 +432,8 @@ public class Atom extends GlobalVariables implements JAtomRepository {
 
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw  new Exception( e.getMessage());
+
         } finally {
             try {
                 con.close();
@@ -446,7 +446,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
     }
 
     @Override
-    public <T> T getByID(Class clazz, Object id) {
+    public <T> T getByID(Class clazz, Object id) throws Exception {
 
         String columnId =  "";
         Object obj = null;
@@ -468,15 +468,15 @@ public class Atom extends GlobalVariables implements JAtomRepository {
 
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw  new Exception( e.getMessage());
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            throw  new Exception( e.getMessage());
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            throw  new Exception( e.getMessage());
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw  new Exception( e.getMessage());
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            throw  new Exception( e.getMessage());
         } finally {
             try {
                 con.close();
