@@ -10,7 +10,6 @@ import com.jatom.repository.JAtomRepository;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -380,7 +379,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
     }
 
     @Override
-    public void save(Object obj, String db)  {
+    public boolean save(Object obj, String db)  {
 
         Connection con = null;
 
@@ -397,6 +396,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
                 this.operationPercistence(obj,con,1);
 
             con.commit();
+            return true;
 
         } catch (SQLException ex){
             try {
@@ -405,8 +405,11 @@ public class Atom extends GlobalVariables implements JAtomRepository {
                 e.printStackTrace();
             }
             System.err.println("Não foi possível fazer a inserção" + ex.getMessage());
+
+            return false;
         } catch (IllegalAccessException e) {
             System.err.println("Não foi possível fazer a inserção" + e.getMessage());
+            return false;
         }
     }
 

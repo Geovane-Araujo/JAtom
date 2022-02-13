@@ -1,13 +1,9 @@
 package com.jatom.repository;
 
-import com.jatom.enuns.Orders;
 import com.jatom.model.JAtomParameters;
 
-import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 public interface JAtomRepository {
 
@@ -24,6 +20,7 @@ public interface JAtomRepository {
      * @param con conexão aberta
      * @return
      */
+    @Deprecated
     public int insertedOne(Object obj, Connection con) throws SQLException, IllegalAccessException;
 
 
@@ -54,6 +51,7 @@ public interface JAtomRepository {
      * @param con conexão aberta
      * @return
      */
+    @Deprecated
     public void editingOne(Object obj, Connection con)throws SQLException, IllegalAccessException;
 
 
@@ -68,6 +66,7 @@ public interface JAtomRepository {
      * @param con
      * @return
      */
+    @Deprecated
     public void editing(Object obj, Connection con) throws SQLException, IllegalAccessException;
 
 
@@ -79,6 +78,7 @@ public interface JAtomRepository {
      * @param identity campo de identidade
      * @param obj id da identidade
      */
+    @Deprecated
     public void deleted(Connection con, String className, String identity, Object obj)throws SQLException, IllegalAccessException;
 
     /**
@@ -134,11 +134,11 @@ public interface JAtomRepository {
     public void save(Object obj);
 
     /**
-     *
-     * @param obj
+     *  @param obj
      * @param db
+     * @return
      */
-    void save(Object obj, String db) throws SQLException;
+    boolean save(Object obj, String db) throws SQLException;
 
     <T extends Object> T get(JAtomParameters jAtomParameters);
 

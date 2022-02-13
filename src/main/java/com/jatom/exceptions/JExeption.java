@@ -1,6 +1,6 @@
 package com.jatom.exceptions;
 
-public class JExeption extends Exception{
+public class JExeption  extends Exception{
 
     public JExeption(){}
 
