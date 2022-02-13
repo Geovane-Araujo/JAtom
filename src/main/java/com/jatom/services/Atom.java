@@ -379,7 +379,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
     }
 
     @Override
-    public boolean save(Object obj, String db)  {
+    public boolean save(Object obj, String db) throws Exception {
 
         Connection con = null;
 
@@ -402,14 +402,11 @@ public class Atom extends GlobalVariables implements JAtomRepository {
             try {
                 con.rollback();
             } catch (SQLException e) {
-                e.printStackTrace();
+                throw  new Exception("Não foi possível fazer a inserção" + e.getMessage());
             }
-            System.err.println("Não foi possível fazer a inserção" + ex.getMessage());
-
-            return false;
+            throw  new Exception("Não foi possível fazer a inserção" + ex.getMessage());
         } catch (IllegalAccessException e) {
-            System.err.println("Não foi possível fazer a inserção" + e.getMessage());
-            return false;
+            throw  new Exception("Não foi possível fazer a inserção" + e.getMessage());
         }
     }
 

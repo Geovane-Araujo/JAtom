@@ -138,7 +138,7 @@ public interface JAtomRepository {
      * @param db
      * @return
      */
-    boolean save(Object obj, String db) throws SQLException;
+    boolean save(Object obj, String db) throws Exception;
 
     <T extends Object> T get(JAtomParameters jAtomParameters);
 
