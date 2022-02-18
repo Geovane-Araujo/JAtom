@@ -623,7 +623,10 @@ public class Atom extends GlobalVariables implements JAtomRepository {
                 if(di.getAnnotation(Id.class) == null && di.getAnnotation(Ignore.class) == null && di.getAnnotation(ListObject.class
                 ) == null && di.getAnnotation(SimpleObject.class) == null){
                     di.setAccessible(true);
-                    strfield += di.getName() + ",";
+                    if(di.getAnnotation(Alias.class) != null)
+                        strfield += di.getAnnotation(Alias.class).value() + ",";
+                    else
+                        strfield += di.getName() + ",";
                     strstatements += "?,";
                     liValues.add(di.get(clazz));
                     i++;
@@ -649,7 +652,10 @@ public class Atom extends GlobalVariables implements JAtomRepository {
                 if(di.getAnnotation(Id.class) == null && di.getAnnotation(Ignore.class) == null && di.getAnnotation(ListObject.class
                 ) == null && di.getAnnotation(SimpleObject.class) == null){
                     di.setAccessible(true);
-                    strfield += di.getName() + " = ?,";
+                    if(di.getAnnotation(Alias.class) != null)
+                        strfield += di.getAnnotation(Alias.class).value() + ",";
+                    else
+                        strfield += di.getName() + ",";
                     liValues.add(di.get(clazz));
                     i++;
                 }
