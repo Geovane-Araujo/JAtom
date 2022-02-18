@@ -139,6 +139,19 @@ public interface JAtomRepository {
      */
     void save(Object obj, String db) throws Exception;
 
+    /**
+     * Método responsável por salvar um objeto
+     * @param obj
+     */
+    public Connection save(Object obj,Connection con, boolean finishTransaction) throws Exception;
+
+    /**
+     * Método responsável por salvar um objeto
+     * @param obj
+     */
+    public Connection save(Object obj, String db,Connection con, boolean finishTransaction) throws Exception;
+
+
     <T extends Object> T get(JAtomParameters jAtomParameters) throws Exception;
 
     <T extends Object> T getByID(Class clazz, Object id) throws Exception;

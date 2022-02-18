@@ -7,6 +7,8 @@ import com.jatom.model.GlobalVariables;
 import com.jatom.model.JAtomParameters;
 import com.jatom.model.JAtomResults;
 import com.jatom.repository.JAtomRepository;
+import com.sun.org.slf4j.internal.Logger;
+import com.sun.org.slf4j.internal.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 
@@ -18,6 +20,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Atom extends GlobalVariables implements JAtomRepository {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(Atom.class);
 
     @Override
     @Deprecated
@@ -363,17 +367,19 @@ public class Atom extends GlobalVariables implements JAtomRepository {
             con.commit();
 
         } catch (SQLException | IllegalAccessException ex){
-            System.err.println("FATAL ERROR: " + ex.getMessage());
             try {
                 con.rollback();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOGGER.error(e.getMessage());
             }
+            LOGGER.error(ex.getMessage());
+            throw new Exception("Não foi possível fazer a operação " + ex.getMessage());
         } finally {
             try {
                 con.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOGGER.error(e.getMessage());
+                throw new Exception("Não foi possível fazer a operação " + e.getMessage());
             }
         }
     }
@@ -402,11 +408,97 @@ public class Atom extends GlobalVariables implements JAtomRepository {
                 con.rollback();
             } catch (SQLException e) {
             }
-            throw  new Exception("Não foi possível fazer a inserção " + ex.getMessage());
-
+            LOGGER.error(ex.getMessage());
+            throw new Exception("Não foi possível fazer a inserção " + ex.getMessage());
         } catch (IllegalAccessException e) {
+            LOGGER.error(e.getMessage());
             throw  new Exception("Não foi possível fazer a inserção " + e.getMessage());
         }
+    }
+
+    @Override
+    public Connection save(Object obj, Connection con, boolean finishTransaction) throws Exception {
+
+
+        String columnId = "";
+
+        Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
+
+        try{
+            if(con == null){
+                con = connectionDatabase.openConnection();
+                con.setAutoCommit(false);
+            }
+
+            fieldIdentifier.setAccessible(true);
+            if(fieldIdentifier.get(obj) == null || fieldIdentifier.get(obj).equals("") || fieldIdentifier.get(obj).toString().equals("0"))
+                this.operationPercistence(obj,con,0);
+            else
+                this.operationPercistence(obj,con,1);
+
+            if(finishTransaction)
+                con.commit();
+
+        } catch (SQLException | IllegalAccessException ex){
+            try {
+                con.rollback();
+            } catch (SQLException e) {
+            }
+            LOGGER.error(ex.getMessage());
+            throw  new Exception("Não foi possível fazer a inserção " + ex.getMessage());
+        } finally {
+            try {
+                if(finishTransaction)
+                    con.close();
+            } catch (SQLException e) {
+                LOGGER.error(e.getMessage());
+                throw  new Exception("Não foi possível fazer a inserção " + e.getMessage());
+            }
+        }
+
+        return con;
+    }
+
+    @Override
+    public Connection save(Object obj, String db, Connection con, boolean finishTransaction) throws Exception {
+
+        String columnId = "";
+
+        Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
+
+        try{
+            if(con == null){
+                con = connectionDatabase.openConnection(db);
+                con.setAutoCommit(false);
+            }
+
+            fieldIdentifier.setAccessible(true);
+            if(fieldIdentifier.get(obj) == null || fieldIdentifier.get(obj).equals("") || fieldIdentifier.get(obj).toString().equals("0"))
+                this.operationPercistence(obj,con,0);
+            else
+                this.operationPercistence(obj,con,1);
+
+            if(finishTransaction)
+                con.commit();
+
+        } catch (SQLException | IllegalAccessException ex){
+            try {
+                con.rollback();
+            } catch (SQLException e) {
+            }
+            LOGGER.error(ex.getMessage());
+            throw  new Exception("Não foi possível fazer a inserção " + ex.getMessage());
+        } finally {
+            try {
+                if(finishTransaction)
+                    con.close();
+            } catch (SQLException e) {
+                LOGGER.error(e.getMessage());
+                throw  new Exception("Não foi possível fazer a inserção " + e.getMessage());
+            }
+        }
+
+        return con;
     }
 
     @Override
