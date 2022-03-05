@@ -6,7 +6,7 @@
 
     <groupId>org.atom</groupId>
     <artifactId>atom-framework</artifactId>
-    <version>3.0.4</version>
+    <version>3.1.5</version>
     <build>
         <plugins>
             <plugin>
@@ -50,16 +50,6 @@
             <groupId>com.github.demidenko05</groupId>
             <artifactId>a-javabeans</artifactId>
             <version>1.0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.17.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.17.1</version>
         </dependency>
     </dependencies>
     <name>atom-framework</name>

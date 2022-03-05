@@ -7,8 +7,6 @@ import com.jatom.model.GlobalVariables;
 import com.jatom.model.JAtomParameters;
 import com.jatom.model.JAtomResults;
 import com.jatom.repository.JAtomRepository;
-import com.sun.org.slf4j.internal.Logger;
-import com.sun.org.slf4j.internal.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 
@@ -21,7 +19,6 @@ import java.util.stream.Collectors;
 
 public class Atom extends GlobalVariables implements JAtomRepository {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(Atom.class);
 
     @Override
     @Deprecated
@@ -370,15 +367,12 @@ public class Atom extends GlobalVariables implements JAtomRepository {
             try {
                 con.rollback();
             } catch (SQLException e) {
-                LOGGER.error(e.getMessage());
             }
-            LOGGER.error(ex.getMessage());
             throw new Exception("Não foi possível fazer a operação " + ex.getMessage());
         } finally {
             try {
                 con.close();
             } catch (SQLException e) {
-                LOGGER.error(e.getMessage());
                 throw new Exception("Não foi possível fazer a operação " + e.getMessage());
             }
         }
@@ -408,10 +402,8 @@ public class Atom extends GlobalVariables implements JAtomRepository {
                 con.rollback();
             } catch (SQLException e) {
             }
-            LOGGER.error(ex.getMessage());
             throw new Exception("Não foi possível fazer a inserção " + ex.getMessage());
         } catch (IllegalAccessException e) {
-            LOGGER.error(e.getMessage());
             throw  new Exception("Não foi possível fazer a inserção " + e.getMessage());
         }
     }
@@ -444,14 +436,12 @@ public class Atom extends GlobalVariables implements JAtomRepository {
                 con.rollback();
             } catch (SQLException e) {
             }
-            LOGGER.error(ex.getMessage());
             throw  new Exception("Não foi possível fazer a inserção " + ex.getMessage());
         } finally {
             try {
                 if(finishTransaction)
                     con.close();
             } catch (SQLException e) {
-                LOGGER.error(e.getMessage());
                 throw  new Exception("Não foi possível fazer a inserção " + e.getMessage());
             }
         }
@@ -486,14 +476,12 @@ public class Atom extends GlobalVariables implements JAtomRepository {
                 con.rollback();
             } catch (SQLException e) {
             }
-            LOGGER.error(ex.getMessage());
             throw  new Exception("Não foi possível fazer a inserção " + ex.getMessage());
         } finally {
             try {
                 if(finishTransaction)
                     con.close();
             } catch (SQLException e) {
-                LOGGER.error(e.getMessage());
                 throw  new Exception("Não foi possível fazer a inserção " + e.getMessage());
             }
         }
@@ -747,7 +735,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
                     if(di.getAnnotation(Alias.class) != null)
                         strfield += di.getAnnotation(Alias.class).value() + ",";
                     else
-                        strfield += di.getName() + ",";
+                        strfield += di.getName() + "=?,";
                     liValues.add(di.get(clazz));
                     i++;
                 }
