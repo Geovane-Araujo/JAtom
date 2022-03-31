@@ -497,17 +497,18 @@ public class Atom extends GlobalVariables implements JAtomRepository {
         // palavras reservadas
 
         String columns = (String)(jAtomParameters.get(JAtomTypes.COLUMNS) == null ? "*" : jAtomParameters.get(JAtomTypes.COLUMNS).toString());
-        Class clazz = (Class)(jAtomParameters.get(JAtomTypes.CLASS) == null ? Object.class : jAtomParameters.get(JAtomTypes.CLASS));
+        Class clazz = (Class)(jAtomParameters.get(JAtomTypes.CLASS) == null ? null : jAtomParameters.get(JAtomTypes.CLASS));
         String sql = (String)(jAtomParameters.get(JAtomTypes.SQL) == null ? null: jAtomParameters.get(JAtomTypes.SQL)).toString();
+        String db = (String)(jAtomParameters.get(JAtomTypes.DB_NAME) == null ? null: jAtomParameters.get(JAtomTypes.DB_NAME)).toString();
         try{
-            con = connectionDatabase.openConnection();
+            if(db == null)
+                con = connectionDatabase.openConnection();
+            else
+                con = connectionDatabase.openConnection(db);
 
             // retorno da Sql Nativa
             if(sql != null){
                 return (T)execute(con,sql,clazz);
-
-            } else if(!clazz.getName().equals("Object")){
-
             }
 
 
@@ -847,7 +848,7 @@ public class Atom extends GlobalVariables implements JAtomRepository {
             if(clazz != null){
                 results.add(gson.fromJson(gson.toJson(obj),clazz));
             } else {
-                results.add(gson.fromJson(gson.toJson(obj),Object.class));
+                results.add(obj);
             }
         }
 
