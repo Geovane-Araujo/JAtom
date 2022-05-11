@@ -89,6 +89,7 @@ public interface JAtomRepository {
      * @param sql Código SQL
      * @return
      */
+    @Deprecated
     public Object getAll(Class clazz,Connection con, String sql)throws SQLException, IllegalAccessException;
 
     /**
@@ -100,6 +101,7 @@ public interface JAtomRepository {
      * @return
      * @throws SQLException
      */
+    @Deprecated
     public Object getOne(Class cazz,Connection con, String sql) throws SQLException, IllegalAccessException;
 
     /**
@@ -109,6 +111,7 @@ public interface JAtomRepository {
      * @param sql Código sql a ser executado
      * @throws SQLException
      */
+    @Deprecated
     public void executeQuery(Connection con, String sql) throws SQLException, IllegalAccessException;
 
     /**
