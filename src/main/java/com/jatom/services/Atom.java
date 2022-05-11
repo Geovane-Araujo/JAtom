@@ -17,7 +17,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Atom extends GlobalVariables implements JAtomRepository {
+public abstract class Atom extends GlobalVariables implements JAtomRepository {
 
 
     @Override
