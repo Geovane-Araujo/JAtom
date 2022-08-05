@@ -45,6 +45,7 @@ public class ConnectionDatabase {
                 return DriverManager.getConnection(url);
 
         } catch (SQLException ex){
+            System.out.printf(ex.getMessage());
             throw  new Exception("Não foi possível conectar a base de dados " + ex.getMessage());
         } catch (ClassNotFoundException e) {
             System.err.println("Class NotFound" + e.getMessage());

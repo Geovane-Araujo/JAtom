@@ -6,7 +6,7 @@
 
     <groupId>org.atom</groupId>
     <artifactId>atom-framework</artifactId>
-    <version>3.1.8</version>
+    <version>3.1.9</version>
     <build>
         <plugins>
             <plugin>
@@ -53,6 +53,11 @@
         </dependency>
     </dependencies>
     <name>atom-framework</name>
-    <description>A demo for deployment to the Central Repository via OSSRH</description>
 
+    <distributionManagement>
+        <repository>
+            <id>myMavenRepo.write</id>
+            <url>https://mymavenrepo.com/repo/VP2jvoIFYdPHP13Vv3WC/</url>
+        </repository>
+    </distributionManagement>
 </project>

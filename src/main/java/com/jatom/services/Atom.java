@@ -573,8 +573,6 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
         return null;
     }
 
-
-
     private void operationPercistence(Object obj, Connection con, int type) throws IllegalAccessException, SQLException {
 
         Object id = 0;
@@ -820,7 +818,6 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
 
         return (T)obj;
     }
-
 
     private <T> T execute(Connection con,String sql, Class clazz) throws SQLException {
 
