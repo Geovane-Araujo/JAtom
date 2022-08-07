@@ -311,7 +311,7 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
             stmt.close();
 
         } catch (SQLException e) {
-            logger.warning("Não foi possível conectar a base de dados: " + e.getMessage());
+            logger.severe("Não foi possível conectar a base de dados: " + e.getMessage());
         } finally {
             try {
                 con.close();
@@ -322,7 +322,7 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
     }
 
     @Override
-    public void executeQuery(String sql, String db) throws Exception {
+    public void executeQuery(String sql, String db) {
         Connection con = null;
 
         try {
@@ -334,7 +334,12 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
             stmt.close();
 
         } catch (SQLException e) {
-            logger.warning("Não foi possível conectar a base de dados: " + e.getMessage());
+            logger.severe("Não foi possível fazer a operação " + e.getMessage());
+            try {
+                throw new Exception("Não foi possível fazer a operação " + e.getMessage());
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         } finally {
             try {
                 con.close();
@@ -369,13 +374,13 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
                 con.rollback();
             } catch (SQLException e) {
             }
-            logger.warning("Não foi possível fazer a operação " + ex.getMessage());
+            logger.severe("Não foi possível fazer a operação " + ex.getMessage());
             throw new Exception("Não foi possível fazer a operação " + ex.getMessage());
         } finally {
             try {
                 con.close();
             } catch (SQLException e) {
-                logger.warning("Não foi possível fazer a operação " + e.getMessage());
+                logger.severe("Não foi possível fazer a operação " + e.getMessage());
                 throw new Exception("Não foi possível fazer a operação " + e.getMessage());
             }
         }
@@ -405,10 +410,10 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
                 con.rollback();
             } catch (SQLException e) {
             }
-            logger.warning("Não foi possível fazer a operação " + ex.getMessage());
+            logger.severe("Não foi possível fazer a operação " + ex.getMessage());
             throw new Exception("Não foi possível fazer a inserção " + ex.getMessage());
         } catch (IllegalAccessException e) {
-            logger.warning("Não foi possível fazer a operação " + e.getMessage());
+            logger.severe("Não foi possível fazer a operação " + e.getMessage());
             throw  new Exception("Não foi possível fazer a inserção " + e.getMessage());
         }
     }
@@ -442,14 +447,14 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
             } catch (SQLException e) {
             }
 
-            logger.warning("Não foi possível fazer a operação " + ex.getMessage());
+            logger.severe("Não foi possível fazer a operação " + ex.getMessage());
             throw  new Exception("Não foi possível fazer a operação " + ex.getMessage());
         } finally {
             try {
                 if(finishTransaction)
                     con.close();
             } catch (SQLException e) {
-                logger.warning("Não foi possível fazer a operação " + e.getMessage());
+                logger.severe("Não foi possível fazer a operação " + e.getMessage());
                 throw  new Exception("Não foi possível fazer a operação " + e.getMessage());
             }
         }
@@ -484,14 +489,14 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
                 con.rollback();
             } catch (SQLException e) {
             }
-            logger.warning("Não foi possível fazer a operação " + ex.getMessage());
+            logger.severe("Não foi possível fazer a operação " + ex.getMessage());
             throw  new Exception("Não foi possível fazer a operação " + ex.getMessage());
         } finally {
             try {
                 if(finishTransaction)
                     con.close();
             } catch (SQLException e) {
-                logger.warning("Não foi possível fazer a operação " + e.getMessage());
+                logger.severe("Não foi possível fazer a operação " + e.getMessage());
                 throw  new Exception("Não foi possível fazer a operação " + e.getMessage());
             }
         }
@@ -500,7 +505,7 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
     }
 
     @Override
-    public <T> T get(JAtomParameters jAtomParameters) throws Exception {
+    public <T> T get(JAtomParameters jAtomParameters)  {
 
 
         Connection con = null;
@@ -509,7 +514,8 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
         String columns = (String)(jAtomParameters.get(JAtomTypes.COLUMNS) == null ? "*" : jAtomParameters.get(JAtomTypes.COLUMNS).toString());
         Class clazz = (Class)(jAtomParameters.get(JAtomTypes.CLASS) == null ? null : jAtomParameters.get(JAtomTypes.CLASS));
         String sql = (String)(jAtomParameters.get(JAtomTypes.SQL) == null ? null: jAtomParameters.get(JAtomTypes.SQL)).toString();
-        String db = (String)(jAtomParameters.get(JAtomTypes.DB_NAME) == null ? null: jAtomParameters.get(JAtomTypes.DB_NAME)).toString();
+        String db = (String)(jAtomParameters.get(JAtomTypes.DB_NAME) == null ? null: jAtomParameters.get(JAtomTypes.DB_NAME).toString());
+
         try{
             if(db == null)
                 con = connectionDatabase.openConnection();
@@ -523,13 +529,17 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
 
 
         } catch (SQLException e) {
-            logger.warning("Não foi possível fazer a operação " + e.getMessage());
-            throw  new Exception( e.getMessage());
+            logger.severe("Não foi possível fazer a operação " + e.getMessage());
+            try {
+                throw  new Exception( e.getMessage());
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         } finally {
             try {
                 con.close();
             } catch (SQLException e) {
-                logger.warning("Não foi possível fazer a operação " + e.getMessage());
+                logger.severe("Não foi possível fazer a operação " + e.getMessage());
             }
         }
 

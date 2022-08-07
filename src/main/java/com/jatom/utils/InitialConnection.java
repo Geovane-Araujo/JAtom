@@ -13,7 +13,7 @@ public class InitialConnection {
             con.openConnection();
             logger.info("Initial connection successful");
         } catch (Exception ex){
-            logger.warning(ex.getMessage());
+            logger.severe(ex.getMessage());
         }
     }
 }

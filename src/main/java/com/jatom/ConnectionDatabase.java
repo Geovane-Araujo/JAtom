@@ -16,47 +16,59 @@ public class ConnectionDatabase {
     private String password = "";
     private String url = "";
     private String user = "";
+    private boolean scheema = false;
 
 
-    public Connection openConnection() throws Exception {
+    public Connection openConnection() {
 
-        this.load();
+
         try{
+            this.load();
             Class.forName(drive);
             if(!password.isEmpty() && !user.isEmpty())
                 return DriverManager.getConnection(url,user,password);
             else
                 return DriverManager.getConnection(url);
 
-        } catch (SQLException ex){
-            logger.warning("Não foi possível conectar a base de dados: " + ex.getMessage());
-
-        } catch (ClassNotFoundException e) {
-            logger.warning("Não foi possível conectar a base de dados: " + e.getMessage());
+        } catch (Exception ex){
+            String message = "Não foi possível conectar a base de dados: " + ex.getMessage();
+            logger.severe(message);
+            try {
+                throw new Exception(message);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
-        return null;
     }
 
-    public Connection openConnection(String db) throws Exception {
+    public Connection openConnection(String db) {
 
-        this.load();
+
         try{
+            this.load();
             Class.forName(drive);
-            if(!password.isEmpty() && !user.isEmpty())
-                return DriverManager.getConnection(url+"/"+db,user,password);
+            if(!password.isEmpty() && !user.isEmpty()){
+
+                if(scheema){
+                    return DriverManager.getConnection(url+"?currentSchema="+db,user,password);
+                } else
+                    return DriverManager.getConnection(url+"/"+db,user,password);
+            }
             else
                 return DriverManager.getConnection(url);
 
-        } catch (SQLException ex){
-            logger.warning("Não foi possível conectar a base de dados: " + ex.getMessage());
-            throw  new Exception("Não foi possível conectar a base de dados " + ex.getMessage());
-        } catch (ClassNotFoundException e) {
-            logger.warning("Class NotFound" + e.getMessage());
+        } catch (Exception ex){
+            String message = "Não foi possível conectar a base de dados: " + ex.getMessage();
+            logger.severe(message);
+            try {
+                throw new Exception(message);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
-        return null;
     }
 
-    private void load() throws Exception {
+    private void load() {
 
         try{
             PropertiesConfiguration config = new PropertiesConfiguration();
@@ -66,10 +78,16 @@ public class ConnectionDatabase {
             url = config.getString("org.connection.jatom.url",null);
             password = config.getString("org.connection.jatom.password",null);
             user = config.getString("org.connection.jatom.user",null);
+            scheema = config.getBoolean("org.connection.jatom.schema",null);
 
-        } catch (ConfigurationException ex){
-            logger.warning("Could not read as file properties " + ex.getMessage());
-            throw  new Exception("Could not read as file properties " + ex.getMessage());
+        } catch (Exception ex){
+            String message = "Não foi possível conectar a base de dados: " + ex.getMessage();
+            logger.severe(message);
+            try {
+                throw new Exception(message);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
 
