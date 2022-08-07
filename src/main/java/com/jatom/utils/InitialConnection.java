@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 public class InitialConnection {
 
-    Logger logger = Logger.getLogger(InitialConnection.class.getPackage().getName());
+    Logger logger = Logger.getLogger(InitialConnection.class.getName());
 
     public void initialSession(){
         ConnectionDatabase con = new ConnectionDatabase();
@@ -13,7 +13,7 @@ public class InitialConnection {
             con.openConnection();
             logger.info("Initial connection successful");
         } catch (Exception ex){
-            logger.info(ex.getMessage());
+            logger.warning(ex.getMessage());
         }
     }
 }

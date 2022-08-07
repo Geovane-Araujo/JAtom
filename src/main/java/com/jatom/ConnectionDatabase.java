@@ -1,15 +1,17 @@
 package com.jatom;
 
+import com.jatom.utils.InitialConnection;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 public class ConnectionDatabase {
 
-
+    Logger logger = Logger.getLogger(InitialConnection.class.getName());
     private String drive = "";
     private String password = "";
     private String url = "";
@@ -27,9 +29,10 @@ public class ConnectionDatabase {
                 return DriverManager.getConnection(url);
 
         } catch (SQLException ex){
-            System.err.println("Não foi possível conectar a base de dados: " + ex.getMessage());
+            logger.warning("Não foi possível conectar a base de dados: " + ex.getMessage());
+
         } catch (ClassNotFoundException e) {
-            System.err.println("Não foi possível encontrar a classe de conexão: " + e.getMessage());
+            logger.warning("Não foi possível conectar a base de dados: " + e.getMessage());
         }
         return null;
     }
@@ -45,10 +48,10 @@ public class ConnectionDatabase {
                 return DriverManager.getConnection(url);
 
         } catch (SQLException ex){
-            System.out.printf(ex.getMessage());
+            logger.warning("Não foi possível conectar a base de dados: " + ex.getMessage());
             throw  new Exception("Não foi possível conectar a base de dados " + ex.getMessage());
         } catch (ClassNotFoundException e) {
-            System.err.println("Class NotFound" + e.getMessage());
+            logger.warning("Class NotFound" + e.getMessage());
         }
         return null;
     }
@@ -65,6 +68,7 @@ public class ConnectionDatabase {
             user = config.getString("org.connection.jatom.user",null);
 
         } catch (ConfigurationException ex){
+            logger.warning("Could not read as file properties " + ex.getMessage());
             throw  new Exception("Could not read as file properties " + ex.getMessage());
         }
 
