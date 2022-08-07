@@ -120,7 +120,9 @@ public class MigrationDataBase {
             return (List<Map<String, Object>>)schemas;
         } else {
             List<Map<String, Object>> ret = new ArrayList<>();
-            ret.add((Map<String, Object>)schemas);
+            if(schemas != null){
+                ret.add((Map<String, Object>)schemas);
+            }
             return ret;
         }
     }
