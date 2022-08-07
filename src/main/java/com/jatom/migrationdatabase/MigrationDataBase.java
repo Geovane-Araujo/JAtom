@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -20,7 +19,35 @@ public class MigrationDataBase {
 
     Logger logger = Logger.getLogger(MigrationDataBase.class.getName());
 
+
+    public void createInformationSchemaIntoSchema(){
+        ConnectionDatabase connectionDatabase = new ConnectionDatabase();
+        Connection con = null;
+        con = connectionDatabase.openConnection();
+
+        if(con != null){
+
+            final List<Map<String, Object>> schemas = getSchemas();
+            final String sql = "CREATE TABLE IF NOT EXISTS schema_version(\n" +
+                    "\n" +
+                    "    id serial primary key,\n" +
+                    "    description varchar(300),\n" +
+                    "    fileName varchar(300),\n" +
+                    "    dataexecution TIMESTAMP\n" +
+                    ");";
+            schemas.forEach(item -> {
+                item.get("schema_name");
+                String db = item.get("schema_name").toString();
+
+                MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
+                migrationDataBaseService.executeQuery(sql,db);
+
+            });
+        }
+    }
+
     public void executeMigrationDataBaseResourcesIntoSchema(){
+        createInformationSchemaIntoSchema();
         ConnectionDatabase connectionDatabase = new ConnectionDatabase();
         Connection con = null;
         con = connectionDatabase.openConnection();
@@ -45,6 +72,10 @@ public class MigrationDataBase {
 
                     MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
                     migrationDataBaseService.executeQuery(finalSql,db);
+
+                    String nameFile = obj.split("__")[1].replace(".sql","").replace("_"," ");
+                    String insetLog = "INSERT INTO schema_version(description,filename,dataexecution) VALUES('"+nameFile+"','"+ obj +"',current_timestamp)";
+                    migrationDataBaseService.executeQuery(insetLog,db);
 
                     logger.info("\n" + db +" - " + finalSql1);
                 });
