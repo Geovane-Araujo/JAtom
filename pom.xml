@@ -6,7 +6,7 @@
 
     <groupId>org.atom</groupId>
     <artifactId>atom-framework</artifactId>
-    <version>3.1.9</version>
+    <version>3.1.12</version>
     <build>
         <plugins>
             <plugin>
@@ -56,8 +56,12 @@
 
     <distributionManagement>
         <repository>
-            <id>myMavenRepo.write</id>
-            <url>https://mymavenrepo.com/repo/VP2jvoIFYdPHP13Vv3WC/</url>
+            <id>myMavenRepoWrite</id>
+            <url>${myMavenRepoWriteUrl}</url>
         </repository>
+        <snapshotRepository>
+            <id>myMavenRepoWrite</id>
+            <url>${myMavenRepoWriteUrl}</url>
+        </snapshotRepository>
     </distributionManagement>
 </project>
