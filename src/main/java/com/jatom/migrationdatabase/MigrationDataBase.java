@@ -36,7 +36,6 @@ public class MigrationDataBase {
                     "    dataexecution TIMESTAMP\n" +
                     ");";
             schemas.forEach(item -> {
-                item.get("schema_name");
                 String db = item.get("schema_name").toString();
 
                 MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
@@ -67,17 +66,19 @@ public class MigrationDataBase {
                 String finalSql = sql;
                 String finalSql1 = sql;
                 schemas.forEach(item -> {
-                    item.get("schema_name");
+
                     String db = item.get("schema_name").toString();
 
-                    MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
-                    migrationDataBaseService.executeQuery(finalSql,db);
+                    if(!verifySqlExecuted(db,obj)){
+                        MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
+                        migrationDataBaseService.executeQuery(finalSql,db);
 
-                    String nameFile = obj.split("__")[1].replace(".sql","").replace("_"," ");
-                    String insetLog = "INSERT INTO schema_version(description,filename,dataexecution) VALUES('"+nameFile+"','"+ obj +"',current_timestamp)";
-                    migrationDataBaseService.executeQuery(insetLog,db);
+                        String nameFile = obj.split("__")[1].replace(".sql","").replace("_"," ");
+                        String insetLog = "INSERT INTO schema_version(description,filename,dataexecution) VALUES('"+nameFile+"','"+ obj +"',current_timestamp)";
+                        migrationDataBaseService.executeQuery(insetLog,db);
 
-                    logger.info("\n" + db +" - " + finalSql1);
+                        logger.info("\n" + db +" - " + finalSql1);
+                    }
                 });
             });
 
@@ -87,6 +88,23 @@ public class MigrationDataBase {
 
     }
 
+    private boolean verifySqlExecuted(String db,String filename){
+        boolean ret = false;
+        Object obj = null;
+
+        MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
+
+        JAtomParameters jAtomParameters = new JAtomParameters();
+        jAtomParameters.put(JAtomTypes.SQL, "SELECT * from schema_version where filename = '"+ filename +"'");
+        jAtomParameters.put(JAtomTypes.DB_NAME,db);
+
+        obj = migrationDataBaseService.get(jAtomParameters);
+
+        if(obj != null)
+            ret = true;
+
+        return ret;
+    }
     private List<Map<String, Object>> getSchemas() {
         Object schemas = null;
 
