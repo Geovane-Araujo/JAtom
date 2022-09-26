@@ -149,6 +149,9 @@ public class MigrationDataBase {
 
         try {
             InputStream in = getResourceAsStream("database");
+            if(in == null) {
+                return filesName;
+            }
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
             String resource = "";
