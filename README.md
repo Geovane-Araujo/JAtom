@@ -35,6 +35,14 @@ no mesmo intuito fio desenvolvido para dar mais liberdade e facilidade para mani
 * schema: caso deseje usar a base como schema insira a propriedade como true, neste caso o nome do banco deverá ser informado
 * enable-mmulti-tanancy: Em bases que serão utilizado multiplos bancos
 
+### Diretório Database
+
+Caso queira que seja executado scripts de sql nativas poderá ser incluida na pasta resources uma pasta com o nome "databases".
+
+Todos os arquivos .sql que contem neste diretório serão executados assim que o projeto for iniciado ou reiniciado
+
+
+
 ### Anotações
 
 a biblioteca possui as seguintes anotações:
@@ -309,6 +317,9 @@ para estes casos pode se usar a abordagem a baixo, aplicando a anotação "@Join
 
 a anotação Join recebe 3 parâmetros:
 
-reference: referencia a classe que está mapeada
-commnName: Nome da coluna ao qual quer trazer o valor na tabela que irá fazer a junção
-columnReference: atributo da classe que é usada como chave estrangeira .
+- reference: referencia a classe que está mapeada .
+- commnName: Nome da  coluna ao qual quer trazer o valor na tabela que irá fazer a junção.
+-  columnReference: atributo da classe que é usada como chave
+   estrangeira .
+
+*** Obs: esta lib encontra-se estavel somente para uso com banco postgres
