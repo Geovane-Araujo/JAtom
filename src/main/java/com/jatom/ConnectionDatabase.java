@@ -1,5 +1,6 @@
 package com.jatom;
 
+import com.jatom.exceptions.ServiceException;
 import com.jatom.utils.InitialConnection;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -92,13 +93,9 @@ public class ConnectionDatabase {
             prefixschema = config.getString("org.connection.jatom.prefixschema",null);
 
         } catch (Exception ex){
-            String message = "Não foi possível conectar a base de dados: " + ex.getMessage();
+            String message = "Não foi possível conectar a base de dados: ";
             logger.severe(message);
-            try {
-                throw new Exception(message);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            throw new ServiceException("BAD_REQUEST",message,ex);
         }
 
 
