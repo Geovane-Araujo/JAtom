@@ -299,7 +299,7 @@ public abstract class Atom extends GlobalVariables implements JAtomRepository {
     //-------------------------------NEW IMPLEMENTATIONS---------------------------------------
 
     @Override
-    public void executeQuery(String sql) throws Exception {
+    public void executeQuery(String sql){
         Connection con = null;
 
         try {

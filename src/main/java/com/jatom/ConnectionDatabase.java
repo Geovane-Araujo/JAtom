@@ -16,8 +16,18 @@ public class ConnectionDatabase {
     private String password = "";
     private String url = "";
     private String user = "";
-    private boolean scheema = false;
+    private boolean schema = false;
 
+    private String prefixschema = "";
+
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getPrefixschema() {
+        return prefixschema;
+    }
 
     public Connection openConnection() {
 
@@ -49,7 +59,7 @@ public class ConnectionDatabase {
             Class.forName(drive);
             if(!password.isEmpty() && !user.isEmpty()){
 
-                if(scheema){
+                if(schema){
                     return DriverManager.getConnection(url+"?currentSchema="+db,user,password);
                 } else
                     return DriverManager.getConnection(url+"/"+db,user,password);
@@ -78,7 +88,8 @@ public class ConnectionDatabase {
             url = config.getString("org.connection.jatom.url",null);
             password = config.getString("org.connection.jatom.password",null);
             user = config.getString("org.connection.jatom.user",null);
-            scheema = config.getBoolean("org.connection.jatom.schema",null);
+            schema = config.getBoolean("org.connection.jatom.schema",null);
+            prefixschema = config.getString("org.connection.jatom.prefixschema",null);
 
         } catch (Exception ex){
             String message = "Não foi possível conectar a base de dados: " + ex.getMessage();
