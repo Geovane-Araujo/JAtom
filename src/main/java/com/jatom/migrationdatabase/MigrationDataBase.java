@@ -134,7 +134,7 @@ public class MigrationDataBase {
 
         JAtomParameters jAtomParameters = new JAtomParameters();
         jAtomParameters.put(JAtomTypes.SQL, "SELECT * from schema_version where filename = '"+ filename +"'");
-        if(db != null && db.equals(""))
+        if(db != null && !db.equals(""))
             jAtomParameters.put(JAtomTypes.DB_NAME,db);
 
         obj = migrationDataBaseService.get(jAtomParameters);

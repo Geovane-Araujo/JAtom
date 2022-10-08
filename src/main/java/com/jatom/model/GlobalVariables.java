@@ -13,9 +13,9 @@ public class GlobalVariables {
 
     protected Connection con = null;
     protected Boolean collect = false;
-    protected PreparedStatement stmt = null;
-    protected Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
-    protected ResultSet rs = null;
+    protected static PreparedStatement stmt = null;
+    protected static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
+    protected static ResultSet rs = null;
     protected ConnectionDatabase connectionDatabase = new ConnectionDatabase();
 
 }

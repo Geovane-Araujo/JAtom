@@ -2,17 +2,19 @@ package com.jatom;
 
 import com.jatom.exceptions.ServiceException;
 import com.jatom.utils.InitialConnection;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ConnectionDatabase {
 
     Logger logger = Logger.getLogger(InitialConnection.class.getName());
+
+    public static boolean runMigration = false;
     private String drive = "";
     private String password = "";
     private String url = "";
@@ -20,6 +22,8 @@ public class ConnectionDatabase {
     private boolean schema = false;
 
     private String prefixschema = "";
+
+    public static String dbname;
 
 
     public String getUrl() {
@@ -32,7 +36,6 @@ public class ConnectionDatabase {
 
     public Connection openConnection() {
 
-
         try{
             this.load();
             Class.forName(drive);
@@ -44,11 +47,7 @@ public class ConnectionDatabase {
         } catch (Exception ex){
             String message = "Não foi possível conectar a base de dados: " + ex.getMessage();
             logger.severe(message);
-            try {
-                throw new Exception(message);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            throw new ServiceException("BAD_REQUEST",message,ex);
         }
     }
 
@@ -70,12 +69,24 @@ public class ConnectionDatabase {
 
         } catch (Exception ex){
             String message = "Não foi possível conectar a base de dados: " + ex.getMessage();
-            logger.severe(message);
-            try {
-                throw new Exception(message);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            logger.log(Level.SEVERE,message);
+            throw new ServiceException("BAD_REQUEST",message,ex);
+        }
+    }
+
+    public static void onCloseConnection(Connection con){
+        try{
+            con.close();
+        } catch (SQLException ex){
+            throw new ServiceException("BAD_REQUEST","Não foi possível fazer a operação " + ex.getMessage(),ex);
+        }
+    }
+
+    public static void onRollback(Connection con){
+        try{
+            con.rollback();
+        } catch (SQLException ex){
+            throw new ServiceException("BAD_REQUEST","Não foi possível fazer a operação " + ex.getMessage(),ex);
         }
     }
 
