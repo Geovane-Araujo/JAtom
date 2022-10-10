@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 class Operations extends GlobalVariables {
 
-    public static void operationPercistence(Object obj, Connection con, int type) throws Exception {
+    protected static void operationPercistence(Object obj, Connection con, int type) throws Exception {
 
         Object id = 0;
         ResultSet rs = null;
@@ -116,7 +116,7 @@ class Operations extends GlobalVariables {
             recurse = false;
         }
     }
-    public static PreparedStatement contructorCommand(Object clazz, Connection con, int type) throws Exception {
+    protected static PreparedStatement contructorCommand(Object clazz, Connection con, int type) throws Exception {
 
         PreparedStatement stmt = null;
 
@@ -200,7 +200,7 @@ class Operations extends GlobalVariables {
 
         return stmt;
     }
-    public static <T> T operationGet(Connection con, Object obj) throws Exception{
+    protected static <T> T operationGet(Connection con, Object obj) throws Exception{
 
         boolean recursive = true;
         String sql = "";
@@ -253,7 +253,7 @@ class Operations extends GlobalVariables {
 
         return (T)obj;
     }
-    public static <T> T execute(Connection con,String sql, Class clazz) throws Exception {
+    protected static <T> T execute(Connection con,String sql, Class clazz) throws Exception {
 
         List<Object> results = new ArrayList<>();
         List<String> columns = new ArrayList<>();
@@ -291,7 +291,7 @@ class Operations extends GlobalVariables {
             return null;
 
     }
-    public static String constructQuery(Class clazz,String coumnId, Object valueId) throws Exception {
+    protected static String constructQuery(Class clazz,String coumnId, Object valueId) throws Exception {
 
         String sqlJoins = "";
 
@@ -304,8 +304,7 @@ class Operations extends GlobalVariables {
 
         return sqlJoins;
     }
-
-    public static String onJoin(Class clazz,String tableName) throws Exception {
+    protected static String onJoin(Class clazz,String tableName) throws Exception {
 
         String join = "";
         String tableUnion = "";
@@ -338,7 +337,7 @@ class Operations extends GlobalVariables {
             sql = "SELECT "+ tableName + ".* FROM "+ tableName;
         return sql;
     }
-    public static String onJoin(Class clazz,String tableName, String coumnId,Object valueId) throws Exception {
+    protected static String onJoin(Class clazz,String tableName, String coumnId,Object valueId) throws Exception {
 
         String join = "";
         String tableUnion = "";
