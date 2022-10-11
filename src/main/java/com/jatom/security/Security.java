@@ -3,6 +3,8 @@ package com.jatom.security;
 import com.jatom.exceptions.ServiceException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 public class Security {
@@ -11,8 +13,35 @@ public class Security {
 
     public String generateToken(String text){
         load();
-        String tok = composeToken(text);
+        String tok = encryptedToken();
         return tok;
+    }
+
+    public String generateToken(){
+        load();
+        return encryptedToken();
+    }
+
+    protected String encryptedToken(){
+
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+
+            md.update(this.token.getBytes());
+
+            byte[] bytes = md.digest();
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++) {
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+            }
+
+            // return Base64.getEncoder().encodeToString((sb.toString()+"|"+Base64.getEncoder().encodeToString(identity.getBytes())).getBytes()).replace("==","");
+
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean validToken(String tok){
