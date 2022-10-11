@@ -24,16 +24,18 @@ no mesmo intuito fio desenvolvido para dar mais liberdade e facilidade para mani
 ### Configurações iniciais
 
 
-    org.connection.jatom.driver=org.postgresql.Driver  
-    org.connection.jatom.url=jdbc:postgresql://localhost:5432/<db_name>  
-    org.connection.jatom.password=<senha>  
-    org.connection.jatom.user=<user>  
-    org.connection.jatom.schema=true  
-    org.configuration.jatom.enable-mmulti-tanancy=true  
+    org.jatom.connection.driver=org.postgresql.Driver  
+    org.jatom.connection.url=jdbc:postgresql://localhost:5432/<db_name>  
+    org.jatom.connection.password=<senha>  
+    org.jatom.connection.user=<user>  
+    org.jatom.connection.schema=true  
+    org.jatom.connection.multi-tenant=true
+    org.jatom.connection.schema-name=<nome schema>
 
 
 * schema: caso deseje usar a base como schema insira a propriedade como true, neste caso o nome do banco deverá ser informado
-* enable-mmulti-tanancy: Em bases que serão utilizado multiplos bancos
+* multi-tenant: Em bases que serão utilizado multiplos bancos
+* schema-name: caso a propriedaded multi-tenant for false e o schema for true, deverá ser informado o nome do schema do banco de dados
 
 ### Diretório Database
 

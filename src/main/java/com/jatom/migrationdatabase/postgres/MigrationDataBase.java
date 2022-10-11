@@ -1,6 +1,6 @@
-package com.jatom.migrationdatabase;
+package com.jatom.migrationdatabase.postgres;
 
-import com.jatom.ConnectionDatabase;
+import com.jatom.connections.postgres.ConnectionDatabase;
 import com.jatom.enuns.JAtomTypes;
 import com.jatom.model.JAtomParameters;
 
@@ -26,8 +26,6 @@ public class MigrationDataBase {
         con = connectionDatabase.openConnection();
 
         if(con != null){
-
-            final List<Map<String, Object>> schemas = getSchemas(connectionDatabase.getPrefixschema());
             final String sql = "CREATE TABLE IF NOT EXISTS schema_version(\n" +
                     "\n" +
                     "    id serial primary key,\n" +
@@ -35,13 +33,25 @@ public class MigrationDataBase {
                     "    fileName varchar(300),\n" +
                     "    dataexecution TIMESTAMP\n" +
                     ");";
-            schemas.forEach(item -> {
-                String db = item.get("schema_name").toString();
+            if(ConnectionDatabase.schema && ConnectionDatabase.multitenant){
+                final List<Map<String, Object>> schemas = getSchemas(connectionDatabase.getPrefixschema());
+                schemas.forEach(item -> {
+                    String db = item.get("schema_name").toString();
 
+                    MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
+                    migrationDataBaseService.executeQuery(sql,db);
+
+                });
+            } else if(!ConnectionDatabase.multitenant && ConnectionDatabase.schema){
+
+                String db = ConnectionDatabase.schemaName;
                 MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
                 migrationDataBaseService.executeQuery(sql,db);
+            } else {
+                MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
+                migrationDataBaseService.executeQuery(sql);
+            }
 
-            });
         }
     }
 

@@ -1,6 +1,6 @@
 package com.jatom.utils;
 
-import com.jatom.ConnectionDatabase;
+import com.jatom.connections.postgres.ConnectionDatabase;
 import java.util.logging.Logger;
 
 public class InitialConnection {

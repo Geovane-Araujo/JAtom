@@ -1,10 +1,10 @@
 package com.jatom.utils;
 
-import com.jatom.ConnectionDatabase;
+import com.jatom.connections.postgres.ConnectionDatabase;
 import com.jatom.anotations.Id;
 import com.jatom.enuns.JAtomTypes;
 import com.jatom.exceptions.ServiceException;
-import com.jatom.migrationdatabase.MigrationDataBase;
+import com.jatom.migrationdatabase.postgres.MigrationDataBase;
 import com.jatom.model.JAtomParameters;
 import com.jatom.repository.JAtomRepository;
 

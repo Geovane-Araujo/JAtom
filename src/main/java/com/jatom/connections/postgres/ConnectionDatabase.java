@@ -1,4 +1,4 @@
-package com.jatom;
+package com.jatom.connections.postgres;
 
 import com.jatom.exceptions.ServiceException;
 import com.jatom.utils.InitialConnection;
@@ -15,15 +15,24 @@ public class ConnectionDatabase {
     Logger logger = Logger.getLogger(InitialConnection.class.getName());
 
     public static boolean runMigration = false;
+
     private String drive = "";
+
     private String password = "";
+
     private String url = "";
+
     private String user = "";
-    private boolean schema = false;
+
+    public static boolean schema = false;
 
     private String prefixschema = "";
 
-    public static String dbname;
+    public static boolean multitenant;
+
+    public static String schemaName;
+
+
 
 
     public String getUrl() {
@@ -96,12 +105,14 @@ public class ConnectionDatabase {
             PropertiesConfiguration config = new PropertiesConfiguration();
             config.load("application.properties");
 
-            drive = config.getString("org.connection.jatom.driver",null);
-            url = config.getString("org.connection.jatom.url",null);
-            password = config.getString("org.connection.jatom.password",null);
-            user = config.getString("org.connection.jatom.user",null);
-            schema = config.getBoolean("org.connection.jatom.schema",null);
-            prefixschema = config.getString("org.connection.jatom.prefixschema",null);
+            drive = config.getString("org.jatom.connection.driver",null);
+            url = config.getString("org.jatom.connection.url",null);
+            password = config.getString("org.jatom.connection.password",null);
+            user = config.getString("org.jatom.connection.user",null);
+            schema = config.getBoolean("org.jatom.connection.schema",false);
+            prefixschema = config.getString("org.jatom.connection.prefixschema",null);
+            multitenant = config.getBoolean("org.jatom.connection.multi-tenant",false);
+            schemaName = config.getString("org.jatom.connection.schema-name",null);
 
         } catch (Exception ex){
             String message = "Não foi possível conectar a base de dados: ";

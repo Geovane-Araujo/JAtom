@@ -40,9 +40,7 @@ public class Security {
         int length = token.length();
         String aux1 = token.substring(0,(length/2));
         String aux2 = token.substring((length/2),token.length());
-
-        String ad = Base64.getEncoder().encodeToString((Base64.getEncoder().encodeToString(aux2.getBytes()) + "-" +  text  + "-" + Base64.getEncoder().encodeToString(aux1.getBytes())).getBytes()) ;
-
+        String ad = Base64.getEncoder().encodeToString((Base64.getEncoder().encodeToString(aux2.getBytes()) + "-" +  text  + "-" + Base64.getEncoder().encodeToString(aux1.getBytes())).getBytes());
         return ad;
     }
 
@@ -53,7 +51,7 @@ public class Security {
             PropertiesConfiguration config = new PropertiesConfiguration();
             config.load("application.properties");
 
-            token = config.getString("org.configuration.jatom.key-authenticate",null);
+            token = config.getString("org.jatom.configuration.key-authenticate",null);
 
         } catch (Exception ex){
 
