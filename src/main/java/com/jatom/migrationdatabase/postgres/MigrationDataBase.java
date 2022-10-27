@@ -105,8 +105,9 @@ public class MigrationDataBase {
                     }
                     String finalSql = sql;
                     String finalSql1 = sql;
-
-                    String db = connectionDatabase.getUrl().split("/")[connectionDatabase.getUrl().split("/").length - 1];
+                    String db = "";
+                    if(ConnectionDatabase.schema)
+                         db = connectionDatabase.getUrl().split("/")[connectionDatabase.getUrl().split("/").length - 1];
 
                     if(!verifySqlExecuted(db,obj)){
                         MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
@@ -115,7 +116,7 @@ public class MigrationDataBase {
                         String nameFile = obj.split("__")[1].replace(".sql","").replace("_"," ");
                         String insetLog = "INSERT INTO schema_version(description,filename,dataexecution) VALUES('"+nameFile+"','"+ obj +"',current_timestamp)";
 
-                        if(db != null && db.equals("")){
+                        if(db != null && !db.equals("")){
                             migrationDataBaseService.executeQuery(finalSql,db);
                             migrationDataBaseService.executeQuery(insetLog,db);
                         }
