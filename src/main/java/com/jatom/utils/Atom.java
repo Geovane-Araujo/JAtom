@@ -1,10 +1,9 @@
 package com.jatom.utils;
 
-import com.jatom.connections.postgres.ConnectionDatabase;
 import com.jatom.anotations.Id;
+import com.jatom.connections.postgres.ConnectionDatabase;
 import com.jatom.enuns.JAtomTypes;
 import com.jatom.exceptions.ServiceException;
-import com.jatom.migrationdatabase.postgres.MigrationDataBase;
 import com.jatom.model.JAtomParameters;
 import com.jatom.repository.JAtomRepository;
 
@@ -20,20 +19,13 @@ public abstract class Atom implements JAtomRepository<Object> {
     Logger logger = Logger.getLogger(InitialConnection.class.getName());
     ConnectionDatabase connectionDatabase = new ConnectionDatabase();
 
-    private void migration(){
-        if(!ConnectionDatabase.runMigration){
-            ConnectionDatabase.runMigration = true;
-            MigrationDataBase mig = new MigrationDataBase();
-            mig.createInformationSchemaIntoSchema();
-            mig.executeMigrationDataBaseResourcesIntoSchema();
-        }
-    }
+
     @Override
     public void executeQuery(String sql){
 
         Connection con = null;
         try {
-            migration();
+            
             con = connectionDatabase.openConnection();
             PreparedStatement stmt = null;
             stmt = con.prepareStatement(sql);
@@ -52,7 +44,6 @@ public abstract class Atom implements JAtomRepository<Object> {
         Connection con = null;
 
         try {
-            migration();
             con = connectionDatabase.openConnection(db);
             PreparedStatement stmt = null;
             stmt = con.prepareStatement(sql);
@@ -72,7 +63,7 @@ public abstract class Atom implements JAtomRepository<Object> {
 
         Connection con = null;
         String columnId = "";
-        migration();
+        
         Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
 
         try{
@@ -100,7 +91,7 @@ public abstract class Atom implements JAtomRepository<Object> {
     public void save(Object obj, String db){
 
         Connection con = null;
-        migration();
+        
         Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
 
         try{
@@ -129,7 +120,7 @@ public abstract class Atom implements JAtomRepository<Object> {
 
 
         String columnId = "";
-        migration();
+        
         Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
 
         try{
@@ -162,7 +153,7 @@ public abstract class Atom implements JAtomRepository<Object> {
     public Connection save(Object obj, String db, Connection con, boolean finishTransaction) {
 
         String columnId = "";
-        migration();
+        
         Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
 
         try{
@@ -197,7 +188,7 @@ public abstract class Atom implements JAtomRepository<Object> {
 
         Connection con = null;
         // palavras reservadas
-        migration();
+        
         String columns = (String)(jAtomParameters.get(JAtomTypes.COLUMNS) == null ? "*" : jAtomParameters.get(JAtomTypes.COLUMNS).toString());
         Class clazz = (Class)(jAtomParameters.get(JAtomTypes.CLASS) == null ? null : jAtomParameters.get(JAtomTypes.CLASS));
         String sql = (String)(jAtomParameters.get(JAtomTypes.SQL) == null ? null: jAtomParameters.get(JAtomTypes.SQL)).toString();
@@ -232,7 +223,7 @@ public abstract class Atom implements JAtomRepository<Object> {
         Object obj = null;
         Connection con = null;
         try{
-            migration();
+            
             obj= clazz.getDeclaredConstructor().newInstance();
             con = connectionDatabase.openConnection();
 
