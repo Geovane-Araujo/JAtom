@@ -26,7 +26,7 @@ public class ConnectionDatabase {
 
     public static boolean schema = false;
 
-    private String prefixschema = "";
+    public static String prefixschema = "";
 
     public static boolean multitenant;
 

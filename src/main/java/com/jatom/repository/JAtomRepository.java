@@ -47,15 +47,18 @@ public interface JAtomRepository<T> {
      */
     Connection save(Object obj, String db,Connection con, boolean finishTransaction);
 
-
     <T extends Object> T get(JAtomParameters jAtomParameters);
 
     <T extends Object> T getByID(Class clazz, Object id);
 
     <T extends Object> T getByID(Class clazz, Object id, String db);
 
-    <T extends Object> T getAll(Class clazz);
+    <T extends Object> T find(Class clazz,String filter);
 
-    <T extends Object> T getAll(Class clazz,String db);
+    <T extends Object> T find(Class clazz,String db, String filter);
+
+    void remove(Class clazz,String db, String filter);
+
+    void remove(Class clazz, String filter);
 
 }

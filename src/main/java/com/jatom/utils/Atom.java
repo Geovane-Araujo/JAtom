@@ -4,14 +4,17 @@ import com.jatom.anotations.Id;
 import com.jatom.connections.postgres.ConnectionDatabase;
 import com.jatom.enuns.JAtomTypes;
 import com.jatom.exceptions.ServiceException;
+import com.jatom.migrationdatabase.postgres.MigrationDataBase;
 import com.jatom.model.JAtomParameters;
 import com.jatom.repository.JAtomRepository;
+import com.jatom.utils.services.Remove;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class Atom implements JAtomRepository<Object> {
@@ -19,13 +22,21 @@ public abstract class Atom implements JAtomRepository<Object> {
     Logger logger = Logger.getLogger(InitialConnection.class.getName());
     ConnectionDatabase connectionDatabase = new ConnectionDatabase();
 
+    private boolean executeMigration = false;
+
+    private void verifyMigration(String db){
+        if(!executeMigration){
+            MigrationDataBase mig = new MigrationDataBase(db);
+            mig.executeMigrationDataBaseResourcesIntoSchema();
+            executeMigration = true;
+        }
+    }
 
     @Override
     public void executeQuery(String sql){
 
         Connection con = null;
         try {
-            
             con = connectionDatabase.openConnection();
             PreparedStatement stmt = null;
             stmt = con.prepareStatement(sql);
@@ -44,6 +55,7 @@ public abstract class Atom implements JAtomRepository<Object> {
         Connection con = null;
 
         try {
+            verifyMigration(db);
             con = connectionDatabase.openConnection(db);
             PreparedStatement stmt = null;
             stmt = con.prepareStatement(sql);
@@ -67,20 +79,20 @@ public abstract class Atom implements JAtomRepository<Object> {
         Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
 
         try{
-
+            verifyMigration(null);
             con = connectionDatabase.openConnection();
             con.setAutoCommit(false);
             fieldIdentifier.setAccessible(true);
             if(fieldIdentifier.get(obj) == null || fieldIdentifier.get(obj).equals("") || fieldIdentifier.get(obj).toString().equals("0"))
-                Operations.operationPercistence(obj,con,0);
+                Operations.operationPersistence(obj,con,0);
             else
-                Operations.operationPercistence(obj,con,1);
+                Operations.operationPersistence(obj,con,1);
 
             con.commit();
 
         } catch (Exception ex){
             ConnectionDatabase.onRollback(con);
-            logger.severe("Não foi possível fazer a operação " + ex.getMessage());
+            logger.log(Level.INFO,"Não foi possível fazer a operação " + ex.getMessage());
             throw new ServiceException("BAD_REQUEST","Não foi possível fazer a operação " + ex.getMessage(),ex);
         } finally {
             ConnectionDatabase.onCloseConnection(con);
@@ -95,14 +107,14 @@ public abstract class Atom implements JAtomRepository<Object> {
         Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
 
         try{
-
+            verifyMigration(db);
             con = connectionDatabase.openConnection(db);
             con.setAutoCommit(false);
             fieldIdentifier.setAccessible(true);
             if(fieldIdentifier.get(obj) == null || fieldIdentifier.get(obj).equals("") || fieldIdentifier.get(obj).toString().equals("0"))
-                Operations.operationPercistence(obj,con,0);
+                Operations.operationPersistence(obj,con,0);
             else
-                Operations.operationPercistence(obj,con,1);
+                Operations.operationPersistence(obj,con,1);
 
             con.commit();
 
@@ -118,7 +130,7 @@ public abstract class Atom implements JAtomRepository<Object> {
     @Override
     public Connection save(Object obj, Connection con, boolean finishTransaction) {
 
-
+        verifyMigration(null);
         String columnId = "";
         
         Field fieldIdentifier = Arrays.stream(obj.getClass().getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
@@ -131,9 +143,9 @@ public abstract class Atom implements JAtomRepository<Object> {
 
             fieldIdentifier.setAccessible(true);
             if(fieldIdentifier.get(obj) == null || fieldIdentifier.get(obj).equals("") || fieldIdentifier.get(obj).toString().equals("0"))
-                Operations.operationPercistence(obj,con,0);
+                Operations.operationPersistence(obj,con,0);
             else
-                Operations.operationPercistence(obj,con,1);
+                Operations.operationPersistence(obj,con,1);
 
             if(finishTransaction)
                 con.commit();
@@ -164,9 +176,9 @@ public abstract class Atom implements JAtomRepository<Object> {
 
             fieldIdentifier.setAccessible(true);
             if(fieldIdentifier.get(obj) == null || fieldIdentifier.get(obj).equals("") || fieldIdentifier.get(obj).toString().equals("0"))
-                Operations.operationPercistence(obj,con,0);
+                Operations.operationPersistence(obj,con,0);
             else
-                Operations.operationPercistence(obj,con,1);
+                Operations.operationPersistence(obj,con,1);
 
             if(finishTransaction)
                 con.commit();
@@ -188,7 +200,7 @@ public abstract class Atom implements JAtomRepository<Object> {
 
         Connection con = null;
         // palavras reservadas
-        
+        verifyMigration(null);
         String columns = (String)(jAtomParameters.get(JAtomTypes.COLUMNS) == null ? "*" : jAtomParameters.get(JAtomTypes.COLUMNS).toString());
         Class clazz = (Class)(jAtomParameters.get(JAtomTypes.CLASS) == null ? null : jAtomParameters.get(JAtomTypes.CLASS));
         String sql = (String)(jAtomParameters.get(JAtomTypes.SQL) == null ? null: jAtomParameters.get(JAtomTypes.SQL)).toString();
@@ -217,13 +229,14 @@ public abstract class Atom implements JAtomRepository<Object> {
     }
 
     @Override
+    @Deprecated
     public <T> T getByID(Class clazz, Object id) {
 
         String columnId =  "";
         Object obj = null;
         Connection con = null;
         try{
-            
+            verifyMigration(null);
             obj= clazz.getDeclaredConstructor().newInstance();
             con = connectionDatabase.openConnection();
 
@@ -255,13 +268,48 @@ public abstract class Atom implements JAtomRepository<Object> {
     }
 
     @Override
-    public <T> T getAll(Class clazz) {
+    public void remove(Class clazz,String db, String filter){
+        Connection con = null;
+        try{
+
+            con = connectionDatabase.openConnection(db);
+            verifyMigration(db);
+            Remove remove = new Remove(filter, con, clazz);
+            remove.remove();
+
+        } catch (Exception ex){
+            logger.log(Level.INFO,"Não foi possível fazer a operação " + ex.getMessage());
+            throw new ServiceException("BAD_REQUEST","Não foi possível fazer a operação " + ex.getMessage(),ex);
+        } finally {
+            ConnectionDatabase.onCloseConnection(con);
+        }
+    }
+
+    @Override
+    public void remove(Class clazz, String filter){
+        Connection con = null;
+        try{
+
+            con = connectionDatabase.openConnection(null);
+            verifyMigration(null);
+            Remove remove = new Remove(filter, con, clazz);
+            remove.remove();
+
+        } catch (Exception ex){
+            logger.log(Level.INFO,"Não foi possível fazer a operação " + ex.getMessage());
+            throw new ServiceException("BAD_REQUEST","Não foi possível fazer a operação " + ex.getMessage(),ex);
+        } finally {
+            ConnectionDatabase.onCloseConnection(con);
+        }
+    }
+
+    @Override
+    public <T> T find(Class clazz,String filter) {
         return null;
     }
 
     @Override
-    public <T> T getAll(Class clazz,String db) {
+    public <T> T find(Class clazz,String db,String filter) {
         return null;
     }
-
 }

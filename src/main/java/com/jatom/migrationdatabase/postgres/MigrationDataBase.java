@@ -2,6 +2,8 @@ package com.jatom.migrationdatabase.postgres;
 
 import com.jatom.connections.postgres.ConnectionDatabase;
 import com.jatom.enuns.JAtomTypes;
+import com.jatom.enuns.ServiceCodeException;
+import com.jatom.exceptions.ServiceException;
 import com.jatom.model.JAtomParameters;
 
 import java.io.BufferedReader;
@@ -10,20 +12,35 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MigrationDataBase {
 
     Logger logger = Logger.getLogger(MigrationDataBase.class.getName());
+    private String db = null;
 
+    public MigrationDataBase(){
+    }
+
+
+    public MigrationDataBase(String db) {
+        this.db = db;
+    }
 
     public void createInformationSchemaIntoSchema(){
         ConnectionDatabase connectionDatabase = new ConnectionDatabase();
         Connection con = null;
-        con = connectionDatabase.openConnection();
+        if(db == null)
+            con = connectionDatabase.openConnection();
+        else
+            con = connectionDatabase.openConnection(db);
 
         if(con != null){
             final String sql = "CREATE TABLE IF NOT EXISTS schema_version(\n" +
@@ -37,34 +54,33 @@ public class MigrationDataBase {
                 final List<Map<String, Object>> schemas = getSchemas(connectionDatabase.getPrefixschema());
                 schemas.forEach(item -> {
                     String db = item.get("schema_name").toString();
-
+                    Connection finalCon  = connectionDatabase.openConnection(db);
                     MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
-                    migrationDataBaseService.executeQuery(sql,db);
+                    migrationDataBaseService.executeQuery(finalCon,sql);
 
                 });
             } else if(!ConnectionDatabase.multitenant && ConnectionDatabase.schema){
-
-                String db = ConnectionDatabase.schemaName;
                 MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
-                migrationDataBaseService.executeQuery(sql,db);
+                migrationDataBaseService.executeQuery(con,sql);
             } else {
                 MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
-                migrationDataBaseService.executeQuery(sql);
+                migrationDataBaseService.executeQuery(con,sql);
             }
-
         }
     }
 
     public void executeMigrationDataBaseResourcesIntoSchema(){
         createInformationSchemaIntoSchema();
         ConnectionDatabase connectionDatabase = new ConnectionDatabase();
-        Connection con = null;
-        con = connectionDatabase.openConnection();
 
-        if(con != null){
+        try{
+            if(ConnectionDatabase.schema && ConnectionDatabase.multitenant){
 
-            if(connectionDatabase.getPrefixschema() != null){
-                final List<Map<String, Object>> schemas = getSchemas(connectionDatabase.getPrefixschema());
+                if(ConnectionDatabase.prefixschema == null || ConnectionDatabase.prefixschema.isEmpty()){
+                    throw  new ServiceException(ServiceCodeException.BAD_REQUEST.toString(),"Prefixschema is required",null);
+                }
+
+                final List<Map<String, Object>> schemas = getSchemas(ConnectionDatabase.prefixschema);
 
                 List<String> listFiles = filesName();
                 listFiles.stream().forEach(obj -> {
@@ -80,17 +96,47 @@ public class MigrationDataBase {
 
                         String db = item.get("schema_name").toString();
 
-                        if(!verifySqlExecuted(db,obj)){
+                        Connection con = connectionDatabase.openConnection(db);
+
+                        if(!verifySqlExecuted(con,obj)){
                             MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
                             migrationDataBaseService.executeQuery(finalSql,db);
 
                             String nameFile = obj.split("__")[1].replace(".sql","").replace("_"," ");
                             String insetLog = "INSERT INTO schema_version(description,filename,dataexecution) VALUES('"+nameFile+"','"+ obj +"',current_timestamp)";
-                            migrationDataBaseService.executeQuery(insetLog,db);
-
-                            logger.info("\n" + db +" - " + finalSql1);
+                            migrationDataBaseService.executeQuery(con,insetLog);
+                            logger.log(Level.INFO,"\n" + db +" - " + finalSql1);
                         }
                     });
+                });
+            } else if(!ConnectionDatabase.multitenant && ConnectionDatabase.schema){
+
+                if(ConnectionDatabase.schemaName == null || ConnectionDatabase.schemaName.isEmpty()){
+                    throw new ServiceException(ServiceCodeException.BAD_REQUEST.toString(),"SchemaName is required",null);
+                }
+
+                List<String> listFiles = filesName();
+                listFiles.stream().forEach(obj -> {
+                    String sql = "";
+                    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                    InputStream in = classLoader.getResourceAsStream("database/"+obj);
+                    if(in != null){
+                        sql = stringInputStream(in);
+                    }
+
+                    Connection con = connectionDatabase.openConnection(ConnectionDatabase.schemaName);
+
+                    if(!verifySqlExecuted(con,obj)){
+                        MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
+
+                        String nameFile = obj.split("__")[1].replace(".sql","").replace("_"," ");
+                        String insetLog = "INSERT INTO schema_version(description,filename,dataexecution) VALUES('"+nameFile+"','"+ obj +"',current_timestamp)";
+
+                        migrationDataBaseService.executeQuery(con,sql);
+                        migrationDataBaseService.executeQuery(con,insetLog);
+                        logger.log(Level.INFO,"\n" + db +" - " + sql);
+                    }
+
                 });
             }
             else{
@@ -103,56 +149,54 @@ public class MigrationDataBase {
                     if(in != null){
                         sql = stringInputStream(in);
                     }
-                    String finalSql = sql;
-                    String finalSql1 = sql;
-                    String db = "";
-                    if(ConnectionDatabase.schema)
-                         db = connectionDatabase.getUrl().split("/")[connectionDatabase.getUrl().split("/").length - 1];
+                    Connection con = null;
+                    if(db == null)
+                        con = connectionDatabase.openConnection();
+                    else
+                        con = connectionDatabase.openConnection(db);
 
-                    if(!verifySqlExecuted(db,obj)){
+                    if(!verifySqlExecuted(con,obj)){
                         MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
-
 
                         String nameFile = obj.split("__")[1].replace(".sql","").replace("_"," ");
                         String insetLog = "INSERT INTO schema_version(description,filename,dataexecution) VALUES('"+nameFile+"','"+ obj +"',current_timestamp)";
 
-                        if(db != null && !db.equals("")){
-                            migrationDataBaseService.executeQuery(finalSql,db);
-                            migrationDataBaseService.executeQuery(insetLog,db);
-                        }
-                        else{
-                            migrationDataBaseService.executeQuery(finalSql);
-                            migrationDataBaseService.executeQuery(insetLog);
-                        }
+                        migrationDataBaseService.executeQuery(con,sql);
+                        migrationDataBaseService.executeQuery(con,insetLog);
 
-                        logger.info("\n" + db +" - " + finalSql1);
+
+                        logger.log(Level.INFO,"\n" + db +" - " + sql);
                     }
-
                 });
             }
-
-        } else {
-            logger.severe("Falha na conexão com o banco de dados");
+        }catch (Exception ex){
+            logger.log(Level.INFO, ex.getMessage(),ex);
         }
-
     }
 
-    private boolean verifySqlExecuted(String db,String filename){
+    private boolean verifySqlExecuted(Connection con,String filename) {
         boolean ret = false;
-        Object obj = null;
+        int qtds = 0;
 
-        MigrationDataBaseService migrationDataBaseService = new MigrationDataBaseService();
+        String sql = "SELECT count(1)as count from schema_version where filename = '"+ filename +"'";
 
-        JAtomParameters jAtomParameters = new JAtomParameters();
-        jAtomParameters.put(JAtomTypes.SQL, "SELECT * from schema_version where filename = '"+ filename +"'");
-        if(db != null && !db.equals(""))
-            jAtomParameters.put(JAtomTypes.DB_NAME,db);
+        try{
+            PreparedStatement smtp = con.prepareStatement(sql);
+            ResultSet rs = smtp.executeQuery();
 
-        obj = migrationDataBaseService.get(jAtomParameters);
+            while (rs.next()){
+                qtds = rs.getInt(1);
+            }
 
-        if(obj != null)
-            ret = true;
+            if(qtds > 0){
+                ret = true;
+            }
 
+            rs.close();
+            smtp.close();
+        } catch (SQLException ex){
+            logger.log(Level.INFO, ex.getMessage(),ex);
+        }
         return ret;
     }
     private List<Map<String, Object>> getSchemas(String prefixschema) {

@@ -13,9 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class Operations extends GlobalVariables {
+public class Operations extends GlobalVariables {
 
-    protected static void operationPercistence(Object obj, Connection con, int type) throws Exception {
+    protected static void operationPersistence(Object obj, Connection con, int type) throws Exception {
 
         Object id = 0;
         ResultSet rs = null;
@@ -88,7 +88,7 @@ class Operations extends GlobalVariables {
                             fieldFk.set(classObjFilho,id);
                         }
 
-                        operationPercistence(classObjFilho,con,type);
+                        operationPersistence(classObjFilho,con,type);
                     }
                 }
                 if(fi.getAnnotation(ListObject.class) != null){
@@ -108,7 +108,7 @@ class Operations extends GlobalVariables {
                                 fieldFk.set(classObjFilho,id);
                             }
 
-                            operationPercistence(classObjFilho,con,type);
+                            operationPersistence(classObjFilho,con,type);
                         }
                     }
                 }
@@ -290,6 +290,12 @@ class Operations extends GlobalVariables {
         else
             return null;
 
+    }
+
+    public static void execute(Connection con,String sql) throws SQLException {
+
+        stmt = con.prepareStatement(sql);
+        stmt.execute();
     }
     protected static String constructQuery(Class clazz,String coumnId, Object valueId) throws Exception {
 
