@@ -7,7 +7,6 @@ import com.jatom.exceptions.ServiceException;
 import com.jatom.migrationdatabase.postgres.MigrationDataBase;
 import com.jatom.model.JAtomParameters;
 import com.jatom.repository.JAtomRepository;
-import com.jatom.utils.services.Remove;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -274,8 +273,8 @@ public abstract class Atom implements JAtomRepository<Object> {
 
             con = connectionDatabase.openConnection(db);
             verifyMigration(db);
-            Remove remove = new Remove(filter, con, clazz);
-            remove.remove();
+            Removeimpl removeimpl = new Removeimpl(filter, con, clazz);
+            removeimpl.remove();
 
         } catch (Exception ex){
             logger.log(Level.INFO,"Não foi possível fazer a operação " + ex.getMessage());
@@ -290,10 +289,10 @@ public abstract class Atom implements JAtomRepository<Object> {
         Connection con = null;
         try{
 
-            con = connectionDatabase.openConnection(null);
+            con = connectionDatabase.openConnection();
             verifyMigration(null);
-            Remove remove = new Remove(filter, con, clazz);
-            remove.remove();
+            Removeimpl removeimpl = new Removeimpl(filter, con, clazz);
+            removeimpl.remove();
 
         } catch (Exception ex){
             logger.log(Level.INFO,"Não foi possível fazer a operação " + ex.getMessage());
@@ -305,6 +304,35 @@ public abstract class Atom implements JAtomRepository<Object> {
 
     @Override
     public <T> T find(Class clazz,String filter) {
+
+//        String columnId =  "";
+//        Object obj = null;
+//        Connection con = null;
+//        try{
+//            verifyMigration(null);
+//            obj= clazz.getDeclaredConstructor().newInstance();
+//            con = connectionDatabase.openConnection();
+//
+//            Field fieldpai = Arrays.stream(clazz.getDeclaredFields()).filter(item -> item.getAnnotation(Id.class) != null).findFirst().orElse(null);
+//            if(fieldpai != null){
+//                columnId =  fieldpai.getName();
+//            } else
+//                return null;
+//
+//            String sql = Operations.constructQuery(clazz,columnId, id);
+//
+//            obj = Operations.execute(con,sql,clazz);
+//
+//            Operations.operationGet(con,obj);
+//
+//
+//        } catch (Exception e) {
+//            logger.severe("Não foi possível fazer a operação " + e.getMessage());
+//            throw new ServiceException("BAD_REQUEST","Não foi possível fazer a operação " + e.getMessage(),e);
+//        } finally {
+//            ConnectionDatabase.onCloseConnection(con);
+//        }
+//        return (T)obj;
         return null;
     }
 

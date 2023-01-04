@@ -1,5 +1,9 @@
 package com.jatom.utils;
 
+import com.jatom.anotations.TableName;
+
+import java.lang.reflect.InvocationTargetException;
+
 public class SqlUtils {
 
     public static String filter(String filter){
@@ -16,5 +20,21 @@ public class SqlUtils {
         filter = filter.replace("miq","<=");
 
         return filter;
+    }
+
+    protected static String getClassName(Class clazz){
+        String className = "";
+        try {
+            Object cls  = clazz.getDeclaredConstructor().newInstance();
+            if(cls.getClass().getAnnotation(TableName.class) != null){
+                className = cls.getClass().getAnnotation(TableName.class).value();
+            }
+            else {
+                className = cls.getClass().getSimpleName();
+            }
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+        return className;
     }
 }
